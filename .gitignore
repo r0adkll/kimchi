@@ -1,0 +1,14 @@
+*.iml
+.gradle
+.idea
+!/.idea/codeStyles
+!/.idea/inspectionProfiles
+!/.idea/icon.png
+.kotlin
+.DS_Store
+build
+captures
+.externalNativeBuild
+.cxx
+local.properties
+xcuserdata
