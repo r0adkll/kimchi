@@ -2,14 +2,14 @@
 
 # Kimchi
 
-**K** - Kotlin
-**i** - Inject
-**m** - Merge
-**c** - Component
-**h** - Hints
-**i** - Intuitively
+**K** - _Kotlin_  
+**i** - _Inject_  
+**m** - _Merge_  
+**c** - _Component_  
+**h** - _Hints_  
+**i** - _Intuitively_  
 
-Kimchi is an [Anvil]()-like KSP processor for [kotlin-inject]() that lets you contribute bindings, modules, and subcomponents across multi-module projects to form your dependency injection graph without manual wiring.
+Kimchi is an [Anvil](https://github.com/square/anvil)-like KSP processor for [kotlin-inject](https://github.com/evant/kotlin-inject) that lets you contribute bindings, modules, and subcomponents across multi-module projects to form your dependency injection graph without manual wiring.
 
 ## Getting started
 
