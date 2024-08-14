@@ -3,7 +3,7 @@
 .idea
 !/.idea/codeStyles
 !/.idea/inspectionProfiles
-!/.idea/icon.png
+!/.idea/icon.svg
 .kotlin
 .DS_Store
 build
