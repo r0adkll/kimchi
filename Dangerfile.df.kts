@@ -1,5 +1,5 @@
-@file:DependsOn("com.gianluz:danger-kotlin-android-lint-plugin:0.1.0")
-
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 import com.gianluz.dangerkotlin.androidlint.AndroidLint
 import com.gianluz.dangerkotlin.androidlint.androidLint
 import systems.danger.kotlin.*

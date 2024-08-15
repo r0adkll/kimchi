@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util.ksp
 
 import com.google.devtools.ksp.processing.Resolver
@@ -53,9 +55,9 @@ private fun KSAnnotation.hasName(packageName: String, simpleName: String): Boole
 
 fun KSAnnotation.getScope(): KSDeclaration? {
   return let {
-      it.arguments.find { it.name?.asString() == "scope" }
-        ?: it.arguments.firstOrNull()
-    }
+    it.arguments.find { it.name?.asString() == "scope" }
+      ?: it.arguments.firstOrNull()
+  }
     ?.value
     ?.let { it as? KSType }
     ?.declaration
@@ -63,9 +65,9 @@ fun KSAnnotation.getScope(): KSDeclaration? {
 
 fun KSAnnotation.getScreen(): KSDeclaration? {
   return let {
-      it.arguments.find { it.name?.asString() == "screen" }
-        ?: it.arguments.getOrNull(1)
-    }
+    it.arguments.find { it.name?.asString() == "screen" }
+      ?: it.arguments.getOrNull(1)
+  }
     ?.value
     ?.let { it as? KSType }
     ?.declaration
@@ -73,9 +75,9 @@ fun KSAnnotation.getScreen(): KSDeclaration? {
 
 fun KSAnnotation.getParentScope(): KSDeclaration? {
   return let {
-      it.arguments.find { it.name?.asString() == "parentScope" }
-        ?: it.arguments.getOrNull(1)
-    }
+    it.arguments.find { it.name?.asString() == "parentScope" }
+      ?: it.arguments.getOrNull(1)
+  }
     ?.value
     ?.let { it as? KSType }
     ?.declaration
@@ -143,7 +145,10 @@ fun Resolver.getSymbolsWithClassAnnotation(packageName: String, simpleName: Stri
  * A 'fast' version of [Resolver.getSymbolsWithAnnotation]. We only care about class annotations so we can skip a lot
  * of the tree.
  */
-fun Resolver.getSymbolsWithFunctionAnnotation(packageName: String, simpleName: String): Sequence<KSFunctionDeclaration> {
+fun Resolver.getSymbolsWithFunctionAnnotation(
+  packageName: String,
+  simpleName: String,
+): Sequence<KSFunctionDeclaration> {
   suspend fun SequenceScope<KSFunctionDeclaration>.visit(declarations: Sequence<KSDeclaration>) {
     for (declaration in declarations) {
       if (declaration is KSFunctionDeclaration) {

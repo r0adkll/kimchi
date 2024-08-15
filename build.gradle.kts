@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -98,7 +100,7 @@ subprojects {
           remoteUrl.set(
             providers.gradleProperty("POM_SCM_URL").map { scmUrl ->
               URI("$scmUrl/tree/main/$relPath/src").toURL()
-            }
+            },
           )
           remoteLineSuffix.set("#L")
         }

@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi
 
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -15,7 +17,6 @@ import com.r0adkll.kimchi.generators.ContributesToGenerator
 import com.r0adkll.kimchi.generators.GeneratedSpec
 import com.r0adkll.kimchi.generators.Generator
 import com.r0adkll.kimchi.generators.MergeComponentGenerator
-import com.squareup.kotlinpoet.ksp.originatingKSFiles
 import com.squareup.kotlinpoet.ksp.writeTo
 
 class MergeSymbolProcessor(

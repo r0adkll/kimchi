@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi
 
 import com.google.devtools.ksp.KspExperimental
@@ -9,8 +11,8 @@ import com.r0adkll.kimchi.GeneratedProperty.ReferenceProperty
 import com.r0adkll.kimchi.GeneratedProperty.ScopeProperty
 import com.r0adkll.kimchi.annotations.ContributesBinding
 import com.r0adkll.kimchi.annotations.ContributesMultibinding
-import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
+import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.util.ksp.findActualType
 import com.squareup.kotlinpoet.ClassName
 import java.lang.IllegalStateException
@@ -37,7 +39,7 @@ class ClassScanner(
   fun findContributedClasses(
     annotation: KClass<*>,
     scope: ClassName,
-  ) : Sequence<KSClassDeclaration> {
+  ): Sequence<KSClassDeclaration> {
     val packageName = when (annotation) {
       ContributesBinding::class -> HINT_BINDING_PACKAGE
       ContributesMultibinding::class -> HINT_MULTIBINDING_PACKAGE

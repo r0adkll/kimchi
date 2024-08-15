@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util
 
 import com.google.devtools.ksp.symbol.KSDeclaration
@@ -25,7 +27,7 @@ fun TypeSpec.Companion.buildClass(
 fun PropertySpec.Companion.buildProperty(
   name: String,
   type: ClassName,
-  builder: PropertySpec.Builder.() -> Unit
+  builder: PropertySpec.Builder.() -> Unit,
 ): PropertySpec = builder(name, type)
   .apply(builder)
   .build()
