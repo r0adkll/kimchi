@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+
+jobs:
+  danger-pr:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    name: "danger-pr"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Danger
+        uses: docker://ghcr.io/danger/danger-kotlin:1.2.0
+        with:
+          args: --failOnErrors --no-publish-check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build and run checks
+        id: gradle-build
+        run: |
+          ./gradlew --quiet --continue --no-configuration-cache \
+              check
+
+      - name: (Fail-only) Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-build
+          path: |
+            **/build/reports/**
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [ build, danger-pr ]
+    if: github.repository == 'r0adkll/kimchi' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Publish snapshot (main branch only)
+        run: ./gradlew publish -PmavenCentralUsername=${{ secrets.SONATYPEUSERNAME }} -PmavenCentralPassword=${{ secrets.SONATYPEPASSWORD }} --no-configuration-cache --quiet
