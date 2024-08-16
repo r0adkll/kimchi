@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi
 
+import com.google.auto.service.AutoService
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -9,7 +10,6 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.r0adkll.kimchi.generators.CircuitInjectGenerator
 import com.r0adkll.kimchi.generators.ContributesBindingGenerator
 import com.r0adkll.kimchi.generators.ContributesMultibindingGenerator
 import com.r0adkll.kimchi.generators.ContributesSubcomponentGenerator
@@ -73,7 +73,6 @@ class MergeSymbolProcessor(
 
   private fun loadCodeGenerators(): List<Generator> {
     return listOf(
-      CircuitInjectGenerator(),
       ContributesBindingGenerator(),
       ContributesMultibindingGenerator(),
       ContributesToGenerator(),
@@ -83,6 +82,7 @@ class MergeSymbolProcessor(
   }
 }
 
+@AutoService(SymbolProcessorProvider::class)
 class MergeSymbolProcessorProvider : SymbolProcessorProvider {
   override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
     return MergeSymbolProcessor(

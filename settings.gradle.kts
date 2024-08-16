@@ -18,7 +18,10 @@ dependencyResolutionManagement {
 rootProject.name = "kimchi"
 
 include(":annotations")
-include(":compiler")
+include(
+  ":compiler",
+  ":compiler-utils"
+)
 include(
   ":circuit:annotations",
   ":circuit:compiler",

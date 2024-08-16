@@ -1,6 +1,6 @@
 // Copyright (C) 2024 r0adkll
 // SPDX-License-Identifier: Apache-2.0
-package com.r0adkll.kimchi.util
+package com.r0adkll.kimchi.circuit.util
 
 import com.squareup.kotlinpoet.MemberName
 
