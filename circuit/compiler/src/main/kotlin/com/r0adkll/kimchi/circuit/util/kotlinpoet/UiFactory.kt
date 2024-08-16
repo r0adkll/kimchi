@@ -3,8 +3,8 @@
 package com.r0adkll.kimchi.circuit.util.kotlinpoet
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.r0adkll.kimchi.circuit.util.MemberNames
 import com.r0adkll.kimchi.circuit.util.ClassNames
+import com.r0adkll.kimchi.circuit.util.MemberNames
 import com.r0adkll.kimchi.util.ksp.findActualType
 import com.r0adkll.kimchi.util.ksp.findParameterThatImplements
 import com.r0adkll.kimchi.util.ksp.findParameterThatIs

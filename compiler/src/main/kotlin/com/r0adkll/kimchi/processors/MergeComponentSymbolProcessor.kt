@@ -1,11 +1,16 @@
 // Copyright (C) 2024 r0adkll
 // SPDX-License-Identifier: Apache-2.0
-package com.r0adkll.kimchi.generators
+package com.r0adkll.kimchi.processors
 
+import com.google.auto.service.AutoService
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
-import com.r0adkll.kimchi.MergeContext
+import com.r0adkll.kimchi.ClassScanner
 import com.r0adkll.kimchi.annotations.ContributesBinding
 import com.r0adkll.kimchi.annotations.ContributesMultibinding
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
@@ -28,50 +33,77 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
+import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
-import kotlin.reflect.KClass
+import com.squareup.kotlinpoet.ksp.writeTo
 import me.tatarka.inject.annotations.Component
 
-class MergeComponentGenerator : Generator {
+internal class MergeComponentSymbolProcessor(
+  private val env: SymbolProcessorEnvironment,
+) : SymbolProcessor {
 
-  override val annotation: KClass<*>
-    get() = MergeComponent::class
-
-  override fun generate(
-    context: MergeContext,
-    element: KSDeclaration,
-  ): GeneratedSpec {
-    require(element is KSClassDeclaration) { "${annotation.simpleName} requires a KSClassDeclaration" }
-    return process(context, element)
+  @AutoService(SymbolProcessorProvider::class)
+  class Provider : SymbolProcessorProvider {
+    override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+      return MergeComponentSymbolProcessor(environment)
+    }
   }
 
-  override fun generate(context: MergeContext): List<GeneratedSpec> {
-    return context.resolver
-      .getSymbolsWithClassAnnotation(annotation)
-      .mapNotNull { element ->
-        if (element.validate()) {
-          process(context, element)
+  private var deferred: MutableList<KSClassDeclaration> = mutableListOf()
+
+  override fun process(resolver: Resolver): List<KSAnnotated> {
+    val classScanner = ClassScanner(resolver, env.logger)
+
+    val previousDiffered = deferred
+    deferred = mutableListOf()
+
+    // Process previously deferred symbols
+    for (element in previousDiffered) {
+      process(classScanner, element).let { fileSpec ->
+        fileSpec.writeTo(
+          codeGenerator = env.codeGenerator,
+          dependencies = fileSpec.kspDependencies(aggregating = true),
+        )
+      }
+    }
+
+    // Scan for new annotations to be processed
+    resolver
+      .getSymbolsWithClassAnnotation(MergeComponent::class)
+      .forEach { element ->
+        // If there are still new files being generated defer the processing of
+        // this to be last so that we can make sure we pick up hints being generated in the
+        // same module
+        if (resolver.getNewFiles().any()) {
+          deferred += element
+        } else if (element.validate()) {
+          process(classScanner, element).let { fileSpec ->
+            fileSpec.writeTo(
+              codeGenerator = env.codeGenerator,
+              dependencies = fileSpec.kspDependencies(aggregating = true),
+            )
+          }
         } else {
-          context.defer(element, annotation)
-          null
+          deferred += element
         }
       }
-      .toList()
+
+    return deferred
   }
 
   private fun process(
-    context: MergeContext,
+    classScanner: ClassScanner,
     element: KSClassDeclaration,
-  ): GeneratedSpec {
-    val packageName = "kotlininject.merge.${element.packageName.asString()}"
+  ): FileSpec {
+    val packageName = "kimchi.merge.${element.packageName.asString()}"
     val classSimpleName = "Merged${element.simpleName.asString()}"
     val className = ClassName(packageName, classSimpleName)
 
     return FileSpec.buildFile(packageName, classSimpleName) {
       // Recursively Generate a component and its contributed subcomponents
-      addType(generateComponent(context, packageName, element))
+      addType(generateComponent(classScanner, packageName, element))
 
       // Create Companion extension method on original element to create this component
       val constructorParameters = getConstructorParameters(element)
@@ -87,15 +119,15 @@ class MergeComponentGenerator : Generator {
           .returns(className)
           .build(),
       )
-    } isAggregating true
+    }
   }
 
   private fun FileSpec.Builder.generateComponent(
-    context: MergeContext,
+    classScanner: ClassScanner,
     packageName: String,
     element: KSClassDeclaration,
     parent: ClassName? = null,
-  ): TypeSpec = with(context) {
+  ): TypeSpec {
     val classSimpleName = "Merged${element.simpleName.asString()}"
     val className = ClassName(packageName, classSimpleName)
     val isSubcomponent: Boolean = parent != null
@@ -110,15 +142,9 @@ class MergeComponentGenerator : Generator {
     val subcomponents = classScanner.findContributedClasses(
       annotation = ContributesSubcomponent::class,
       scope = scope,
-    ) + contributionCache.getContributedClasses(
-      annotation = ContributesSubcomponent::class,
-      scope = scope,
     )
 
     val modules = classScanner.findContributedClasses(
-      annotation = ContributesTo::class,
-      scope = scope,
-    ) + contributionCache.getContributedClasses(
       annotation = ContributesTo::class,
       scope = scope,
     )
@@ -126,15 +152,9 @@ class MergeComponentGenerator : Generator {
     val bindings = classScanner.findContributedClasses(
       annotation = ContributesBinding::class,
       scope = scope,
-    ) + contributionCache.getContributedClasses(
-      annotation = ContributesBinding::class,
-      scope = scope,
     )
 
     val multiBindings = classScanner.findContributedClasses(
-      annotation = ContributesMultibinding::class,
-      scope = scope,
-    ) + contributionCache.getContributedClasses(
       annotation = ContributesMultibinding::class,
       scope = scope,
     )
@@ -235,7 +255,7 @@ class MergeComponentGenerator : Generator {
         // Generate the Subcomponent
         addType(
           generateComponent(
-            context = context,
+            classScanner = classScanner,
             packageName = "$packageName.$classSimpleName",
             element = subcomponent,
             parent = className,

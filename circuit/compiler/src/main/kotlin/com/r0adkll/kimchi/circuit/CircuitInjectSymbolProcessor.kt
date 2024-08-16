@@ -63,7 +63,7 @@ class CircuitInjectSymbolProcessor(
 
     resolver
       .getAllSymbolsWithAnnotation(CircuitInject::class)
-      .map { element ->
+      .forEach { element ->
         if (element.validate()) {
           when (element) {
             is KSFunctionDeclaration -> generateUiFactory(element)
@@ -72,14 +72,13 @@ class CircuitInjectSymbolProcessor(
           }?.let { fileSpec ->
             fileSpec.writeTo(
               codeGenerator = env.codeGenerator,
-              dependencies = fileSpec.kspDependencies(aggregating = false)
+              dependencies = fileSpec.kspDependencies(aggregating = false),
             )
           }
         } else {
           deferred += element
         }
       }
-      .toList()
 
     return deferred
   }

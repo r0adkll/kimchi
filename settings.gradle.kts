@@ -20,7 +20,7 @@ rootProject.name = "kimchi"
 include(":annotations")
 include(
   ":compiler",
-  ":compiler-utils"
+  ":compiler-utils",
 )
 include(
   ":circuit:annotations",
