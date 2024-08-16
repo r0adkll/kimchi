@@ -5,8 +5,7 @@ package com.r0adkll.kimchi.circuit.annotations
 import kotlin.reflect.KClass
 
 /**
- * TODO: Move this to a separate module once we better productionize this processor
- *   and finish plugin APIs
+ * TODO: Add kdoc to demonstrate this annotations use
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)

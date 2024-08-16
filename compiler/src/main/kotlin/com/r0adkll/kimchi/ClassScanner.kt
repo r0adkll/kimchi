@@ -18,7 +18,7 @@ import com.squareup.kotlinpoet.ClassName
 import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
-internal const val HINT_PREFIX = "kotlininject.merge.hint"
+internal const val HINT_PREFIX = "kimchi.merge.hint"
 internal const val HINT_CONTRIBUTES_PACKAGE = "$HINT_PREFIX.merge"
 internal const val HINT_BINDING_PACKAGE = "$HINT_PREFIX.binding"
 internal const val HINT_MULTIBINDING_PACKAGE = "$HINT_PREFIX.multibinding"

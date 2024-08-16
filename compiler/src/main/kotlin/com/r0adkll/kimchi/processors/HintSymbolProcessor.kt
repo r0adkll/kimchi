@@ -1,11 +1,12 @@
 // Copyright (C) 2024 r0adkll
 // SPDX-License-Identifier: Apache-2.0
-package com.r0adkll.kimchi.generators
+package com.r0adkll.kimchi.processors
 
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.validate
-import com.r0adkll.kimchi.MergeContext
 import com.r0adkll.kimchi.REFERENCE_SUFFIX
 import com.r0adkll.kimchi.SCOPE_SUFFIX
 import com.r0adkll.kimchi.util.buildFile
@@ -16,49 +17,55 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.writeTo
 import kotlin.reflect.KClass
 
-abstract class HintGenerator(
+/**
+ * Base [SymbolProcessor] for generating hints that can be scanned and processed later
+ * by the merging component generator
+ */
+internal abstract class HintSymbolProcessor(
+  private val env: SymbolProcessorEnvironment,
   private val hintPackageName: String,
-) : Generator {
+) : SymbolProcessor {
 
+  /**
+   * Define the annotation to scan and generate hints for
+   */
+  abstract val annotation: KClass<*>
+
+  /**
+   * Define how to determine the targeted scope of the hint
+   * @param element the [KSClassDeclaration] of the class annotated with [annotation]
+   * @return the [ClassName] of the scope this hint will target
+   */
   abstract fun getScope(element: KSClassDeclaration): ClassName
 
-  override fun generate(
-    context: MergeContext,
-    element: KSDeclaration,
-  ): GeneratedSpec {
-    require(element is KSClassDeclaration) { "${annotation.simpleName} requires KSClassDeclarations only" }
-    return process(context, element)
-  }
-
-  override fun generate(context: MergeContext): List<GeneratedSpec> {
-    return context.resolver.getSymbolsWithClassAnnotation(annotation)
-      .mapNotNull { element ->
-        if (element.validate()) {
-          process(context, element)
-        } else {
-          context.defer(element, annotation)
-          null
+  override fun process(resolver: Resolver): List<KSAnnotated> {
+    resolver.getSymbolsWithClassAnnotation(annotation)
+      .forEach { element ->
+        process(element).let { fileSpec ->
+          fileSpec.writeTo(
+            codeGenerator = env.codeGenerator,
+            dependencies = fileSpec.kspDependencies(aggregating = false),
+          )
         }
       }
-      .toList()
+
+    return emptyList()
   }
 
   private fun process(
-    context: MergeContext,
     element: KSClassDeclaration,
-  ): GeneratedSpec {
+  ): FileSpec {
     val fileName = element.simpleName.asString()
     val className = element.toClassName()
     val propertyName = element.qualifiedName!!.asString()
       .replace(".", "_")
 
     val scope = getScope(element)
-
-    // Cache this for the session
-    context.contributionCache.add(element)
 
     return FileSpec.buildFile(hintPackageName, fileName) {
       // Reference Hint
@@ -84,6 +91,6 @@ abstract class HintGenerator(
           .addModifiers(KModifier.PUBLIC)
           .build(),
       )
-    } isAggregating false
+    }
   }
 }
