@@ -34,6 +34,8 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.ksp.kspDependencies
+import com.squareup.kotlinpoet.ksp.writeTo
 import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
 import me.tatarka.inject.annotations.IntoSet
@@ -63,11 +65,15 @@ class CircuitInjectSymbolProcessor(
       .getAllSymbolsWithAnnotation(CircuitInject::class)
       .map { element ->
         if (element.validate()) {
-          env.logger.info("Processing @CircuitInject on element: $element -> ${element.qualifiedName?.asString()}")
           when (element) {
             is KSFunctionDeclaration -> generateUiFactory(element)
             is KSClassDeclaration -> generatePresenterFactory(element)
             else -> null
+          }?.let { fileSpec ->
+            fileSpec.writeTo(
+              codeGenerator = env.codeGenerator,
+              dependencies = fileSpec.kspDependencies(aggregating = false)
+            )
           }
         } else {
           deferred += element
