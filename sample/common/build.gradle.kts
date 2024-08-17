@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 // Copyright (C) 2024 r0adkll
@@ -45,7 +47,8 @@ kotlin {
           if (isAndroidTarget) {
             freeCompilerArgs.addAll(
               "-P",
-              "plugin:org.jetbrains.kotlin.parcelize:additionalAnnotation=com.r0adkll.kimchi.restaurant.common.screens.Parcelize",
+              "plugin:org.jetbrains.kotlin.parcelize:additionalAnnotation=" +
+                "com.r0adkll.kimchi.restaurant.common.screens.Parcelize",
             )
           }
         }
