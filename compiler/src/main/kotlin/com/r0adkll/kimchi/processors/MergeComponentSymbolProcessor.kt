@@ -3,6 +3,10 @@
 package com.r0adkll.kimchi.processors
 
 import com.google.auto.service.AutoService
+import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.closestClassDeclaration
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -20,6 +24,8 @@ import com.r0adkll.kimchi.util.addIfNonNull
 import com.r0adkll.kimchi.util.buildClass
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.kotlinpoet.addBinding
+import com.r0adkll.kimchi.util.kotlinpoet.parameterSpecs
+import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
 import com.r0adkll.kimchi.util.ksp.findAnnotation
 import com.r0adkll.kimchi.util.ksp.getScope
 import com.r0adkll.kimchi.util.ksp.getSymbolsWithClassAnnotation
@@ -129,7 +135,8 @@ internal class MergeComponentSymbolProcessor(
     parent: ClassName? = null,
   ): TypeSpec {
     val classSimpleName = "Merged${element.simpleName.asString()}"
-    val className = ClassName(packageName, classSimpleName)
+    val className = parent?.nestedClass(classSimpleName)
+      ?: ClassName(packageName, classSimpleName)
     val isSubcomponent: Boolean = parent != null
 
     val annotationKlass = if (isSubcomponent) ContributesSubcomponent::class else MergeComponent::class
@@ -142,7 +149,7 @@ internal class MergeComponentSymbolProcessor(
     val subcomponents = classScanner.findContributedClasses(
       annotation = ContributesSubcomponent::class,
       scope = scope,
-    )
+    ).map { SubcomponentDeclaration(it) }
 
     val modules = classScanner.findContributedClasses(
       annotation = ContributesTo::class,
@@ -184,7 +191,12 @@ internal class MergeComponentSymbolProcessor(
         superclass(element.toClassName())
       }
 
-      val constructorParams = getConstructorParameters(element)
+      val constructorParams = if (isSubcomponent) {
+        val subcomponent = SubcomponentDeclaration(element)
+        subcomponent.factoryClass.factoryFunction.parameterSpecs()
+      } else {
+        getConstructorParameters(element)
+      }
 
       // If this is a subcomponent, i.e it has a parent,
       // then we need to add it's parent as an @Component parameter, but
@@ -211,8 +223,10 @@ internal class MergeComponentSymbolProcessor(
           .build(),
       )
 
-      constructorParams.map { it.name }.forEach {
-        addSuperclassConstructorParameter("%L", it)
+      if (!isSubcomponent) {
+        constructorParams.map { it.name }.forEach {
+          addSuperclassConstructorParameter("%L", it)
+        }
       }
 
       // Add all the contributed interfaces
@@ -234,29 +248,17 @@ internal class MergeComponentSymbolProcessor(
 
       // Now iterate through all the subcomponents, and add them
       subcomponents.forEach { subcomponent ->
-        val subcomponentClassSimpleName = "Merged${subcomponent.simpleName.asString()}"
-        val subcomponentClassName = className.nestedClass(subcomponentClassSimpleName)
-        val subcomponentConstructorParams = getConstructorParameters(subcomponent)
+        // Add this subcomponents factory to the parent
+        addSuperinterface(subcomponent.factoryClass.toClassName())
 
-        // Generate a creation method for the component
-        addFunction(
-          FunSpec.builder("create${subcomponent.simpleName.asString().replaceFirstChar { it.uppercaseChar() }}")
-            .returns(subcomponentClassName)
-            .addParameters(subcomponentConstructorParams)
-            .addStatement(
-              "return %T.create(${subcomponentConstructorParams.joinToString { "%L" }}" +
-                "${if (subcomponentConstructorParams.isNotEmpty()) ", " else ""}this)",
-              subcomponentClassName,
-              *subcomponentConstructorParams.map { it.name }.toTypedArray(),
-            )
-            .build(),
-        )
+        // Generate the factory creation function overload to generate this subcomponent
+        addFunction(subcomponent.createFactoryFunctionOverload())
 
         // Generate the Subcomponent
         addType(
           generateComponent(
             classScanner = classScanner,
-            packageName = "$packageName.$classSimpleName",
+            packageName = packageName,
             element = subcomponent,
             parent = className,
           ),

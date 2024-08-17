@@ -28,8 +28,12 @@ include(
 )
 include(
   ":sample:androidApp",
+  ":sample:desktopApp",
   ":sample:shared",
-  ":sample:ui"
+  ":sample:common",
+  ":sample:features:menu:api",
+  ":sample:features:menu:impl",
+  ":sample:features:menu:ui",
 )
 
 // https://docs.gradle.org/5.6/userguide/groovy_plugin.html#sec:groovy_compilation_avoidance

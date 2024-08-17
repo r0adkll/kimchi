@@ -1,13 +1,10 @@
 import java.util.Locale
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
   alias(libs.plugins.androidLibrary)
-  alias(libs.plugins.compose.multiplatform)
-  alias(libs.plugins.compose.compiler)
   alias(libs.plugins.ksp)
 }
 
@@ -23,7 +20,7 @@ kotlin {
     iosSimulatorArm64(),
   ).forEach {
     it.binaries.framework {
-      baseName = "shared"
+      baseName = "menu_api"
       isStatic = true
     }
   }
@@ -31,20 +28,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       api(projects.annotations)
-
       api(projects.sample.common)
-      api(projects.sample.features.menu.ui)
-      api(projects.sample.features.menu.impl)
-
-      api(libs.circuit.runtime)
-      api(libs.circuit.foundation)
-      api(libs.circuit.overlay)
-      api(libs.circuitx.gesturenav)
-
-      implementation(compose.ui)
-      implementation(compose.material)
-      implementation(compose.material3)
-      implementation(compose.materialIconsExtended)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)
@@ -52,19 +36,9 @@ kotlin {
   }
 }
 
-addKspDependencyForAllTargets(libs.kotlininject.ksp)
 addKspDependencyForAllTargets(projects.compiler)
 
-composeCompiler {
-  enableStrongSkippingMode.set(true)
-  includeSourceInformation.set(true)
-}
-
-android { namespace = "com.r0adkll.kimchi.restaurant" }
-
-ksp {
-  arg("me.tatarka.inject.generateCompanionExtensions", "true")
-}
+android { namespace = "com.r0adkll.kimchi.restaurant.menu.api" }
 
 private fun Project.addKspDependencyForAllTargets(dependencyNotation: Any) {
   val kmpExtension = extensions.getByType<KotlinMultiplatformExtension>()
