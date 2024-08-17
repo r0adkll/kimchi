@@ -58,7 +58,8 @@ jobs:
             **/build/reports/**
 
   publish:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
+    timeout-minutes: 60
     needs: [ build ]
     if: github.repository == 'r0adkll/kimchi' && github.ref == 'refs/heads/main'
 
@@ -76,4 +77,4 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Publish snapshot (main branch only)
-        run: ./gradlew publish -PmavenCentralUsername=${{ secrets.SONATYPEUSERNAME }} -PmavenCentralPassword=${{ secrets.SONATYPEPASSWORD }} --no-configuration-cache --quiet
+        run: ./gradlew publish -PmavenCentralUsername=${{ secrets.SONATYPEUSERNAME }} -PmavenCentralPassword=${{ secrets.SONATYPEPASSWORD }} --no-configuration-cache
