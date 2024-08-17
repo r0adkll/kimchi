@@ -1,6 +1,5 @@
-// Copyright 2020, Google LLC, Christopher Banes and the Tivi project contributors
+// Copyright (C) 2020 r0adkll
 // SPDX-License-Identifier: Apache-2.0
-
 package com.r0adkll.kimchi.restaurant
 
 import androidx.compose.runtime.CompositionLocalProvider

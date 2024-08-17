@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util.kotlinpoet
 
 import com.google.devtools.ksp.symbol.KSValueParameter
@@ -10,7 +12,7 @@ fun KSValueParameter.toParameterSpec(): ParameterSpec {
     .addAnnotations(
       annotations
         .map { it.toAnnotationSpec() }
-        .toList()
+        .toList(),
     )
     .build()
 }

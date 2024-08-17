@@ -1,7 +1,8 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 import java.util.Locale
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
   alias(libs.plugins.kotlinMultiplatform)
@@ -85,7 +86,9 @@ private fun Project.addKspDependencyForAllTargets(dependencyNotation: Any) {
 }
 
 fun String.capitalized(): CharSequence = let<CharSequence, CharSequence> {
-  if (it.isEmpty()) it else it[0].titlecase(
-    Locale.getDefault()
+  if (it.isEmpty()) {
+    it
+  } else it[0].titlecase(
+    Locale.getDefault(),
   ) + it.substring(1)
 }

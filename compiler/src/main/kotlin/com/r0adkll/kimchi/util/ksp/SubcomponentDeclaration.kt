@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util.ksp
 
 import com.google.devtools.ksp.KspExperimental
@@ -19,7 +21,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  * annotated with [com.r0adkll.kimchi.annotations.ContributesSubcomponent]
  */
 class SubcomponentDeclaration(
-  private val clazz: KSClassDeclaration
+  private val clazz: KSClassDeclaration,
 ) : KSClassDeclaration by clazz {
 
   val subcomponentSimpleName: String
@@ -32,8 +34,10 @@ class SubcomponentDeclaration(
       .filter { it.isAnnotationPresent(ContributesSubcomponent.Factory::class) }
       .map { FactoryDeclaration(this, it) }
       .firstOrNull()
-      ?: throw IllegalStateException("@ContributesSubcomponent must define a factory interface annotated with " +
-        "@ContributesSubcomponent.Factory")
+      ?: throw IllegalStateException(
+        "@ContributesSubcomponent must define a factory interface annotated with " +
+          "@ContributesSubcomponent.Factory",
+      )
   }
 
   fun createFactoryFunctionOverload(): FunSpec = with(factoryClass) {
@@ -63,7 +67,7 @@ class SubcomponentDeclaration(
    */
   class FactoryDeclaration(
     private val subcomponent: SubcomponentDeclaration,
-    private val clazz: KSClassDeclaration
+    private val clazz: KSClassDeclaration,
   ) : KSClassDeclaration by clazz {
 
     init {
@@ -81,8 +85,10 @@ class SubcomponentDeclaration(
             "Factory methods are required to return their component"
           }
         }
-        ?: throw IllegalStateException("@ContributeSubcomponent.Factory interfaces must only have a " +
-          "single function declared")
+        ?: throw IllegalStateException(
+          "@ContributeSubcomponent.Factory interfaces must only have a " +
+            "single function declared",
+        )
     }
   }
 }

@@ -1,10 +1,10 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.restaurant.ui.menu
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import com.r0adkll.kimchi.circuit.annotations.CircuitInject
 import com.r0adkll.kimchi.restaurant.common.scopes.UiScope
@@ -32,7 +32,6 @@ class MenuPresenter(
     return MenuUiState(
       items = items,
     ) {
-
     }
   }
 }

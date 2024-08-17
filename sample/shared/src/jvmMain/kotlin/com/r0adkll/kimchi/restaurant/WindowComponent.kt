@@ -1,6 +1,5 @@
-// Copyright 2023, Christopher Banes and the Tivi project contributors
+// Copyright (C) 2023 r0adkll
 // SPDX-License-Identifier: Apache-2.0
-
 package com.r0adkll.kimchi.restaurant
 
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
