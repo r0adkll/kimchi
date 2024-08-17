@@ -38,10 +38,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build and run checks
-        id: gradle-build
+        id: gradle-check
         run: |
           ./gradlew --quiet --continue --no-configuration-cache \
               check
+
+      - name: Build sample app
+        id: gradle-sample-build
+        run: |
+          ./gradlew --quiet --continue --no-configuration-cache \
+              :sample:desktopApp:build
 
       - name: (Fail-only) Upload reports
         if: failure()
