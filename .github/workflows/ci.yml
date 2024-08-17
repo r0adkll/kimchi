@@ -43,6 +43,12 @@ jobs:
           ./gradlew --quiet --continue --no-configuration-cache \
               check
 
+      - name: Build sample app
+        id: gradle-build
+        run: |
+          ./gradlew --quiet --continue --no-configuration-cache \
+              :sample:desktopApp:build
+
       - name: (Fail-only) Upload reports
         if: failure()
         uses: actions/upload-artifact@v4
