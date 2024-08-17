@@ -187,6 +187,8 @@ internal class MergeComponentSymbolProcessor(
         superclass(element.toClassName())
       }
 
+      // If we are generating a subcomponent, then parse the underlying component constructor params
+      // from its defined factory class and function.
       val constructorParams = if (isSubcomponent) {
         val subcomponent = SubcomponentDeclaration(element)
         subcomponent.factoryClass.factoryFunction.parameterSpecs()
@@ -219,6 +221,9 @@ internal class MergeComponentSymbolProcessor(
           .build(),
       )
 
+      // Subcomponents currently have a hard restriction on being interfaces with using a Factory
+      // to define how the merged component implements its constructor parameters. So we can just
+      // skip adding superclass constructor params in this case.
       if (!isSubcomponent) {
         constructorParams.map { it.name }.forEach {
           addSuperclassConstructorParameter("%L", it)
