@@ -14,13 +14,12 @@ annotation class ContributesBinding(
   val scope: KClass<*>,
   val boundType: KClass<*> = Unit::class,
   val replaces: Array<KClass<*>> = [],
-  val priority: Priority = Priority.NORMAL,
+  val rank: Int = RANK_NORMAL,
 ) {
-  /**
-   * The priority of a contributed binding.
-   */
-  @Suppress("unused")
-  enum class Priority {
-    NORMAL, HIGH, HIGHEST
+
+  companion object {
+    const val RANK_NORMAL: Int = Int.MIN_VALUE
+    const val RANK_HIGH: Int = 0
+    const val RANK_HIGHEST: Int = Int.MAX_VALUE
   }
 }

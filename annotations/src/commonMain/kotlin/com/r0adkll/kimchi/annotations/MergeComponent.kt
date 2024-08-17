@@ -11,4 +11,5 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.SOURCE)
 annotation class MergeComponent(
   val scope: KClass<*>,
+  val excludes: Array<KClass<*>> = [],
 )

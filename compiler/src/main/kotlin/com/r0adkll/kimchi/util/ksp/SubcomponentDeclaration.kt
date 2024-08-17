@@ -9,7 +9,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.util.buildFun
-import com.r0adkll.kimchi.util.kotlinpoet.parameterSpecs
+import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -48,7 +48,7 @@ class SubcomponentDeclaration(
 
       returns(factoryFunction.returnType!!.toTypeName())
 
-      val factoryParameters = factoryFunction.parameterSpecs()
+      val factoryParameters = factoryFunction.parameters.map { it.toParameterSpec() }
       addParameters(factoryParameters)
 
       // Build the return statement constructing the expected merged subcomponent, including

@@ -9,6 +9,8 @@ import kotlin.reflect.KClass
 annotation class ContributesSubcomponent(
   val scope: KClass<*>,
   val parentScope: KClass<*>,
+  val excludes: Array<KClass<*>> = [],
+  val replaces: Array<KClass<*>> = [],
 ) {
 
   @MustBeDocumented
