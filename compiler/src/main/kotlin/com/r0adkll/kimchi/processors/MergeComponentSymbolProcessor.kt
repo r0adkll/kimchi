@@ -53,6 +53,9 @@ internal class MergeComponentSymbolProcessor(
     }
   }
 
+  private val isGenerateCompanionExtensionsEnabled: Boolean
+    get() = env.options["me.tatarka.inject.generateCompanionExtensions"] == "true"
+
   private var deferred: MutableList<KSClassDeclaration> = mutableListOf()
 
   override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -109,12 +112,17 @@ internal class MergeComponentSymbolProcessor(
 
       // Create Companion extension method on original element to create this component
       val constructorParameters = getConstructorParameters(element)
+      val createFunction = if (isGenerateCompanionExtensionsEnabled) {
+        "%T.create"
+      } else {
+        "%T::class.create"
+      }
       addFunction(
         FunSpec.builder("create$classSimpleName")
           .receiver(element.toClassName().nestedClass("Companion"))
           .addParameters(constructorParameters)
           .addStatement(
-            "return %T.create(${constructorParameters.joinToString { "%L" }})",
+            "return $createFunction(${constructorParameters.joinToString { "%L" }})",
             className,
             *constructorParameters.map { it.name }.toTypedArray(),
           )
@@ -253,7 +261,7 @@ internal class MergeComponentSymbolProcessor(
         addSuperinterface(subcomponent.factoryClass.toClassName())
 
         // Generate the factory creation function overload to generate this subcomponent
-        addFunction(subcomponent.createFactoryFunctionOverload())
+        addFunction(subcomponent.createFactoryFunctionOverload(isGenerateCompanionExtensionsEnabled))
 
         // Generate the Subcomponent
         addType(

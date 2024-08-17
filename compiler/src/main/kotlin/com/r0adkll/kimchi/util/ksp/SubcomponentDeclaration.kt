@@ -40,7 +40,9 @@ class SubcomponentDeclaration(
       )
   }
 
-  fun createFactoryFunctionOverload(): FunSpec = with(factoryClass) {
+  fun createFactoryFunctionOverload(
+    isGenerateCompanionExtensionsEnabled: Boolean,
+  ): FunSpec = with(factoryClass) {
     return FunSpec.buildFun(factoryFunction.simpleName.asString()) {
       addModifiers(KModifier.OVERRIDE)
 
@@ -51,8 +53,13 @@ class SubcomponentDeclaration(
 
       // Build the return statement constructing the expected merged subcomponent, including
       // parent.
+      val componentCreationFunction = if (isGenerateCompanionExtensionsEnabled) {
+        "%L.create"
+      } else {
+        "%L::class.create"
+      }
       addStatement(
-        "return %L.create(${factoryParameters.joinToString { "%L" }}" +
+        "return $componentCreationFunction(${factoryParameters.joinToString { "%L" }}" +
           "${if (factoryParameters.isNotEmpty()) ", " else ""}this)",
         subcomponentSimpleName,
         *factoryParameters.map { it.name }.toTypedArray(),

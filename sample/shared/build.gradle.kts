@@ -63,9 +63,9 @@ composeCompiler {
 
 android { namespace = "com.r0adkll.kimchi.restaurant" }
 
-ksp {
-  arg("me.tatarka.inject.generateCompanionExtensions", "true")
-}
+//ksp {
+//  arg("me.tatarka.inject.generateCompanionExtensions", "true")
+//}
 
 private fun Project.addKspDependencyForAllTargets(dependencyNotation: Any) {
   val kmpExtension = extensions.getByType<KotlinMultiplatformExtension>()
