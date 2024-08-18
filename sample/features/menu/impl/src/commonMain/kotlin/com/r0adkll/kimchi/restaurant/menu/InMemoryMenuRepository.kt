@@ -28,8 +28,8 @@ class InMemoryMenuRepository(
         appetizer + duJours["appetizer"],
         entrees + duJours["entree"],
         dessert + duJours["dessert"],
-        *beverages.toTypedArray()
-      )
+        *beverages.toTypedArray(),
+      ),
     )
   }
 

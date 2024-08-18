@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util
 
 import com.google.devtools.ksp.containingFile
@@ -20,12 +22,12 @@ class KimchiException(
       return """
         KSNode: ${node::class.simpleName}
         ${
-          when (node) {
-            is KSClassDeclaration -> "Class: ${node.qualifiedName?.asString()}"
-            is KSFunctionDeclaration -> "Function: ${node.qualifiedName?.asString()}"
-            else -> "Unknown: $node"
-          }
+        when (node) {
+          is KSClassDeclaration -> "Class: ${node.qualifiedName?.asString()}"
+          is KSFunctionDeclaration -> "Function: ${node.qualifiedName?.asString()}"
+          else -> "Unknown: $node"
         }
+      }
         File: ${node.containingFile?.filePath}
       """.trimIndent()
     }

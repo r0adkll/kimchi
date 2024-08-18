@@ -9,7 +9,6 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import kotlin.reflect.KClass
 

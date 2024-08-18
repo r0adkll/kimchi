@@ -17,7 +17,6 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 import kotlin.reflect.KClass
@@ -55,7 +54,7 @@ internal abstract class HintSymbolProcessor(
         process(element).writeTo(
           codeGenerator = env.codeGenerator,
           aggregating = false,
-          originatingKSFiles = listOf(element.containingFile!!)
+          originatingKSFiles = listOf(element.containingFile!!),
         )
       }
 
@@ -75,7 +74,6 @@ internal abstract class HintSymbolProcessor(
     val scope = getScope(element)
 
     return FileSpec.buildFile(hintPackageName, fileName) {
-
       // Reference Hint
       addProperty(
         PropertySpec

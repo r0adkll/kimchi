@@ -3,7 +3,6 @@
 package com.r0adkll.kimchi.circuit
 
 import com.google.auto.service.AutoService
-import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -80,13 +79,10 @@ class CircuitInjectSymbolProcessor(
               element.returnTypeIs(ClassNames.Circuit.UiState) -> generatePresenterFunctionFactory(element)
               else -> null
             }
-            is KSClassDeclaration -> {
-              env.logger.warn("${element.simpleName.asString()} supertypes [${element.getAllSuperTypes().joinToString { it.toClassName().toString() }}]")
-              when {
-                element.implements(ClassNames.Circuit.Ui) -> generateUiFactory(element)
-                element.implements(ClassNames.Circuit.Presenter) -> generatePresenterFactory(element)
-                else -> null
-              }
+            is KSClassDeclaration -> when {
+              element.implements(ClassNames.Circuit.Ui) -> generateUiFactory(element)
+              element.implements(ClassNames.Circuit.Presenter) -> generatePresenterFactory(element)
+              else -> null
             }
             else -> null
           }?.let { fileSpec ->

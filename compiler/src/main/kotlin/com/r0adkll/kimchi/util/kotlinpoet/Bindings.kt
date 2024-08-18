@@ -8,7 +8,6 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.r0adkll.kimchi.annotations.ContributesMultibinding
 import com.r0adkll.kimchi.util.buildFun
 import com.r0adkll.kimchi.util.buildProperty
-import com.r0adkll.kimchi.util.ksp.findAnnotation
 import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
 import com.r0adkll.kimchi.util.ksp.findMapKey
 import com.r0adkll.kimchi.util.ksp.findQualifier

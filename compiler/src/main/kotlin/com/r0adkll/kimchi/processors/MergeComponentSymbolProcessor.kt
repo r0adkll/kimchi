@@ -207,7 +207,7 @@ internal class MergeComponentSymbolProcessor(
           addProperty(
             PropertySpec.builder(it.name!!.asString(), it.type.toTypeName())
               .initializer(it.name!!.asString())
-              .build()
+              .build(),
           )
 
           it.toParameterSpec {
@@ -216,7 +216,7 @@ internal class MergeComponentSymbolProcessor(
             addAnnotation(
               AnnotationSpec.builder(Provides::class)
                 .useSiteTarget(AnnotationSpec.UseSiteTarget.GET)
-                .build()
+                .build(),
             )
           }
         }

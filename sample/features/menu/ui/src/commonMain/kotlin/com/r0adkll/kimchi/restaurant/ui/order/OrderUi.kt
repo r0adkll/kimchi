@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.restaurant.ui.order
 
 import androidx.compose.runtime.Composable
@@ -11,5 +13,4 @@ import com.r0adkll.kimchi.restaurant.common.screens.OrderScreen
 fun OrderUi(
   modifier: Modifier = Modifier,
 ) {
-
 }
