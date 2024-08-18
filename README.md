@@ -198,7 +198,7 @@ You can explicitly declare contributed elements on the classpath from being merg
 abstract class AppComponent
 ```
 
-In a perfect world this feature shouldn't be needed. However, due to legacy setups, poor modularization, and other constraints of modern day software development applications might need to use it.
+In a perfect world this feature shouldn't be needed. However, due to legacy setups, poor modularization, and other constraints of modern day software development, applications might need to use it.
 
 ## Setup
 
