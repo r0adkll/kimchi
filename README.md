@@ -168,7 +168,7 @@ All `@Contributes*` annotations support specify an array of class references in 
 )
 class TestMenuRepository : MenuRepository //…
 ```
-Then if both `TestMenuRepository` and `MenuRepositoryImpl` are on the classpath Kimchi will read the `replaces` argument and replace the bindings. This logic follows for all the other contribution annotations and merging.
+Then if both `TestMenuRepository` and `MenuRepositoryImpl` are on the classpath, Kimchi will read the `replaces` argument and replace the bindings. This logic follows for all the other contribution annotations and merging.
 
 **Using `rank` parameter**
 
