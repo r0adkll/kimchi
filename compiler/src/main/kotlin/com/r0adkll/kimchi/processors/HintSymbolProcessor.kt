@@ -17,7 +17,6 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 import kotlin.reflect.KClass
@@ -43,15 +42,20 @@ internal abstract class HintSymbolProcessor(
    */
   abstract fun getScope(element: KSClassDeclaration): ClassName
 
+  /**
+   * Validate that the [element] annotated with this hint generator
+   * can actually be contributed
+   */
+  open fun validate(element: KSClassDeclaration) = Unit
+
   override fun process(resolver: Resolver): List<KSAnnotated> {
     resolver.getSymbolsWithClassAnnotation(annotation)
       .forEach { element ->
-        process(element).let { fileSpec ->
-          fileSpec.writeTo(
-            codeGenerator = env.codeGenerator,
-            dependencies = fileSpec.kspDependencies(aggregating = false),
-          )
-        }
+        process(element).writeTo(
+          codeGenerator = env.codeGenerator,
+          aggregating = false,
+          originatingKSFiles = listOf(element.containingFile!!),
+        )
       }
 
     return emptyList()
@@ -64,6 +68,8 @@ internal abstract class HintSymbolProcessor(
     val className = element.toClassName()
     val propertyName = element.qualifiedName!!.asString()
       .replace(".", "_")
+
+    validate(element)
 
     val scope = getScope(element)
 

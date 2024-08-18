@@ -10,13 +10,14 @@ import com.r0adkll.kimchi.circuit.annotations.CircuitInject
 import com.r0adkll.kimchi.restaurant.common.scopes.UiScope
 import com.r0adkll.kimchi.restaurant.common.screens.MenuScreen
 import com.r0adkll.kimchi.restaurant.menu.MenuRepository
+import com.r0adkll.kimchi.restaurant.menu.model.Menu
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
 import kotlinx.coroutines.flow.flow
 import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
 
-@CircuitInject(UiScope::class, MenuScreen::class)
+@CircuitInject(MenuScreen::class, UiScope::class)
 @Inject
 class MenuPresenter(
   @Assisted private val navigator: Navigator,
@@ -25,12 +26,12 @@ class MenuPresenter(
 
   @Composable
   override fun present(): MenuUiState {
-    val items by remember {
-      flow { emit(menuRepository.getItems()) }
-    }.collectAsState(emptyList())
+    val menu by remember {
+      flow { emit(menuRepository.getMenu()) }
+    }.collectAsState(Menu(emptyList()))
 
     return MenuUiState(
-      items = items,
+      menu = menu,
     ) {
     }
   }

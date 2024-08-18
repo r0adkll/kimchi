@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.restaurant.menu
 
-import com.r0adkll.kimchi.restaurant.menu.model.MenuItem
+import com.r0adkll.kimchi.restaurant.menu.model.Menu
 
 interface MenuRepository {
 
-  suspend fun getItems(): List<MenuItem>
+  suspend fun getMenu(): Menu
 }
