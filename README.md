@@ -4,7 +4,7 @@
 
 **K**_otlin_ **I**_nject_ **M**_erge_ **C**_omponent_ **H**_ints_ **I**_ntuitively_
 
-Kimchi is an [Anvil](https://github.com/square/anvil)-like KSP processor for [kotlin-inject](https://github.com/evant/kotlin-inject) that lets you contribute bindings, modules, and subcomponents across multi-module projects to form your dependency injection graph without having manual wiring your components upstream.
+Kimchi is an [Anvil](https://github.com/square/anvil)-like KSP processor for [kotlin-inject](https://github.com/evant/kotlin-inject) that lets you contribute bindings, modules, and subcomponents across multi-module projects to form your dependency injection graph without having to manually wire upstream.
 
 ## Getting started
 
@@ -48,7 +48,7 @@ class LoggingInitializer() : AppInitializer
 abstract class AppComponent {
   abstract val initializers: Set<AppInitializer>
 ```
-or you can specify a `MapKey` (`StringKey`, `IntKey`, `LongKey`, or you can make a custom key if needed) for mapped bindings
+or you can specify a `MapKey` (`StringKey`, `IntKey`, `LongKey`, or custom) for mapped bindings
 
 ```kotlin
 interface MenuSection
@@ -183,7 +183,7 @@ e.g.
 class NoOpMenuRepository : MenuRepository
 ```
 
-> [!NOTE]   
+> [!NOTE]
 > It is always recommended to use `replaces` instead of `rank` whenever possible. The `replaces` parameter will always take precedence no matter what you set the `rank` value to.
 
 **Component Exclusions**
