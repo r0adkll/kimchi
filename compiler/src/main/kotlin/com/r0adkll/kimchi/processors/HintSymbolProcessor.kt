@@ -46,12 +46,11 @@ internal abstract class HintSymbolProcessor(
   override fun process(resolver: Resolver): List<KSAnnotated> {
     resolver.getSymbolsWithClassAnnotation(annotation)
       .forEach { element ->
-        process(element).let { fileSpec ->
-          fileSpec.writeTo(
-            codeGenerator = env.codeGenerator,
-            dependencies = fileSpec.kspDependencies(aggregating = false),
-          )
-        }
+        process(element).writeTo(
+          codeGenerator = env.codeGenerator,
+          aggregating = false,
+          originatingKSFiles = listOf(element.containingFile!!)
+        )
       }
 
     return emptyList()
@@ -68,6 +67,7 @@ internal abstract class HintSymbolProcessor(
     val scope = getScope(element)
 
     return FileSpec.buildFile(hintPackageName, fileName) {
+
       // Reference Hint
       addProperty(
         PropertySpec

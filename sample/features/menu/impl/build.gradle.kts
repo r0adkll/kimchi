@@ -32,6 +32,7 @@ kotlin {
       api(projects.annotations)
       api(projects.sample.common)
       api(projects.sample.features.menu.api)
+      api(libs.kotlininject.runtime)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

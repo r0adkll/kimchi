@@ -34,6 +34,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.writeTo
 import me.tatarka.inject.annotations.Assisted
@@ -112,6 +113,7 @@ class CircuitInjectSymbolProcessor(
     return FileSpec.buildFile(packageName, classSimpleName) {
       addType(
         TypeSpec.interfaceBuilder(componentClassName)
+          .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(
             AnnotationSpec.builder(ContributesTo::class)
               .addMember("%T::class", scope)
@@ -131,6 +133,7 @@ class CircuitInjectSymbolProcessor(
 
       addType(
         TypeSpec.classBuilder(className)
+          .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(Inject::class)
           .addSuperinterface(ClassNames.Circuit.UiFactory)
           .addFunction(
@@ -231,6 +234,7 @@ class CircuitInjectSymbolProcessor(
     return FileSpec.buildFile(packageName, classSimpleName) {
       addType(
         TypeSpec.interfaceBuilder(componentClassName)
+          .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(
             AnnotationSpec.builder(ContributesTo::class)
               .addMember("%T::class", scope)
@@ -255,6 +259,7 @@ class CircuitInjectSymbolProcessor(
 
       addType(
         TypeSpec.classBuilder(classSimpleName)
+          .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(Inject::class)
           .addSuperinterface(ClassNames.Circuit.PresenterFactory)
           .primaryConstructor(

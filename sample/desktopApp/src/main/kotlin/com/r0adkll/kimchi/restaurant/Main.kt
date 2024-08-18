@@ -41,7 +41,7 @@ fun main() = application {
   val navigator = rememberCircuitNavigator(backstack) { /* no-op */ }
 
   val windowState = rememberWindowState(
-    width = 1080.dp,
+    width = 480.dp,
     height = 720.dp,
     position = WindowPosition.Aligned(Alignment.Center),
   )
