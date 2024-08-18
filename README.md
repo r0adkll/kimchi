@@ -188,7 +188,7 @@ class NoOpMenuRepository : MenuRepository
 
 **Component Exclusions**
 
-You can explicitly declare contributed elements on the class path from being merged into components using the `excludes` parameter on the `@MergeComponent` and `@ContributesSubcomponent` annotations, like so:
+You can explicitly declare contributed elements on the classpath from being merged into components using the `excludes` parameter on the `@MergeComponent` and `@ContributesSubcomponent` annotations, like so:
 
 ```kotlin
 @MergeComponent(
