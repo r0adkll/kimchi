@@ -21,7 +21,7 @@ import com.r0adkll.kimchi.restaurant.common.scopes.UiScope
 import com.r0adkll.kimchi.restaurant.common.screens.MenuScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-@CircuitInject(UiScope::class, MenuScreen::class)
+@CircuitInject(MenuScreen::class, UiScope::class)
 @Composable
 fun MenuUi(
   state: MenuUiState,

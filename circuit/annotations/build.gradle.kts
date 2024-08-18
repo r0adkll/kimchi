@@ -20,7 +20,9 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
-      // put your multiplatform dependencies here
+      // Only here for doc linking
+      compileOnly(libs.circuit.foundation)
+      compileOnly(libs.kotlininject.runtime)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

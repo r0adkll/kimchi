@@ -9,8 +9,10 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.r0adkll.kimchi.HINT_CONTRIBUTES_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesTo
+import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.ksp.findAnnotation
 import com.r0adkll.kimchi.util.ksp.getScope
+import com.r0adkll.kimchi.util.ksp.isInterface
 import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
@@ -33,6 +35,15 @@ internal class ContributesToSymbolProcessor(
     return element.findAnnotation(ContributesTo::class)
       ?.getScope()
       ?.toClassName()
-      ?: throw IllegalArgumentException("Unable to find scope for ${element.qualifiedName}")
+      ?: throw KimchiException("Unable to find scope for ${element.qualifiedName}", element)
+  }
+
+  override fun validate(element: KSClassDeclaration) {
+    if (!element.isInterface) {
+      throw KimchiException(
+        "@ContributesTo can only contribute interface classes to a scope",
+        node = element,
+      )
+    }
   }
 }

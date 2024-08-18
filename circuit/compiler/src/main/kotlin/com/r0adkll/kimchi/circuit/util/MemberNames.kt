@@ -7,4 +7,5 @@ import com.squareup.kotlinpoet.MemberName
 object MemberNames {
 
   val CircuitUi = MemberName("com.slack.circuit.runtime.ui", "ui")
+  val CircuitPresenterOf = MemberName("com.slack.circuit.runtime.presenter", "presenterOf")
 }

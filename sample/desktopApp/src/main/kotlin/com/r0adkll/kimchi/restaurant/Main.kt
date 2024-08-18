@@ -20,12 +20,13 @@ import com.r0adkll.kimchi.restaurant.common.session.UserSession
 import com.r0adkll.kimchi.restaurant.di.UserComponent
 import com.slack.circuit.backstack.rememberSaveableBackStack
 import com.slack.circuit.foundation.rememberCircuitNavigator
-import kimchi.merge.com.r0adkll.kimchi.restaurant.createMergedDesktopApplicationComponent
+import kimchi.merge.com.r0adkll.kimchi.restaurant.create
+import kimchi.merge.com.r0adkll.kimchi.restaurant.createDesktopApplicationComponent
 
 @Suppress("CAST_NEVER_SUCCEEDS", "UNCHECKED_CAST", "USELESS_CAST", "KotlinRedundantDiagnosticSuppress")
 fun main() = application {
   val applicationComponent = remember {
-    DesktopApplicationComponent.createMergedDesktopApplicationComponent()
+    DesktopApplicationComponent.createDesktopApplicationComponent()
       .also {
         ComponentHolder.components += it
       }

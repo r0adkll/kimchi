@@ -8,6 +8,7 @@ import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
+import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.buildFun
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -34,9 +35,10 @@ class SubcomponentDeclaration(
       .filter { it.isAnnotationPresent(ContributesSubcomponent.Factory::class) }
       .map { FactoryDeclaration(this, it) }
       .firstOrNull()
-      ?: throw IllegalStateException(
+      ?: throw KimchiException(
         "@ContributesSubcomponent must define a factory interface annotated with " +
           "@ContributesSubcomponent.Factory",
+        clazz,
       )
   }
 
@@ -78,8 +80,11 @@ class SubcomponentDeclaration(
   ) : KSClassDeclaration by clazz {
 
     init {
-      require(isInterface) {
-        "@ContributesSubcomponent.Factory annotated declarations must be an interface"
+      if (!isInterface) {
+        throw KimchiException(
+          "@ContributesSubcomponent.Factory annotated declarations must be an interface",
+          clazz,
+        )
       }
     }
 
@@ -92,9 +97,9 @@ class SubcomponentDeclaration(
             "Factory methods are required to return their component"
           }
         }
-        ?: throw IllegalStateException(
-          "@ContributeSubcomponent.Factory interfaces must only have a " +
-            "single function declared",
+        ?: throw KimchiException(
+          "@ContributeSubcomponent.Factory interfaces must only have a single function declared",
+          clazz,
         )
     }
   }

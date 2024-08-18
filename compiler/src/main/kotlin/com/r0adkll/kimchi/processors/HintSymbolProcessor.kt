@@ -43,6 +43,12 @@ internal abstract class HintSymbolProcessor(
    */
   abstract fun getScope(element: KSClassDeclaration): ClassName
 
+  /**
+   * Validate that the [element] annotated with this hint generator
+   * can actually be contributed
+   */
+  open fun validate(element: KSClassDeclaration) = Unit
+
   override fun process(resolver: Resolver): List<KSAnnotated> {
     resolver.getSymbolsWithClassAnnotation(annotation)
       .forEach { element ->
@@ -63,6 +69,8 @@ internal abstract class HintSymbolProcessor(
     val className = element.toClassName()
     val propertyName = element.qualifiedName!!.asString()
       .replace(".", "_")
+
+    validate(element)
 
     val scope = getScope(element)
 

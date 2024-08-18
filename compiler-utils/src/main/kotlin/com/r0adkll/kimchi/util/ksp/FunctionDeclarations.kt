@@ -8,7 +8,10 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
+import kotlin.reflect.KClass
 
 /**
  * Search through all of the [KSFunctionDeclaration.parameters] for one whos type implements the
@@ -29,4 +32,25 @@ fun KSFunctionDeclaration.findParameterThatIs(className: ClassName): KSValuePara
   return parameters.find { parameter ->
     parameter.type.resolve().toClassName() == className
   }
+}
+
+fun KSFunctionDeclaration.returnTypeIs(clazz: KClass<*>): Boolean {
+  return returnTypeIs(clazz.asClassName())
+}
+
+fun KSFunctionDeclaration.returnTypeIs(className: ClassName): Boolean {
+  return returnType
+    ?.findActualType()
+    ?.getAllSuperTypes()
+    ?.any { it.declaration.toClassName() == className } == true
+}
+
+fun KSFunctionDeclaration.directReturnTypeIs(clazz: KClass<*>): Boolean {
+  return directReturnTypeIs(clazz.asClassName())
+}
+
+fun KSFunctionDeclaration.directReturnTypeIs(className: ClassName): Boolean {
+  return returnType
+    ?.findActualType()
+    ?.toClassName() == className
 }

@@ -16,6 +16,7 @@ import com.r0adkll.kimchi.annotations.ContributesMultibinding
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.annotations.MergeComponent
+import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.addIfNonNull
 import com.r0adkll.kimchi.util.buildClass
 import com.r0adkll.kimchi.util.buildFile
@@ -120,7 +121,7 @@ internal class MergeComponentSymbolProcessor(
         "%T::class.create"
       }
       addFunction(
-        FunSpec.builder("create$classSimpleName")
+        FunSpec.builder("create${element.simpleName.asString()}")
           .receiver(element.toClassName().nestedClass("Companion"))
           .addParameters(constructorParameters)
           .addStatement(
@@ -149,7 +150,7 @@ internal class MergeComponentSymbolProcessor(
     val scope = element.findAnnotation(annotationKlass)
       ?.getScope()
       ?.toClassName()
-      ?: throw IllegalArgumentException("Unable to find scope for ${element.simpleName}")
+      ?: throw KimchiException("Unable to find scope for ${element.qualifiedName}", element)
 
     // Pull the contributed components for the scope
     val subcomponents = classScanner.findContributedClasses(
