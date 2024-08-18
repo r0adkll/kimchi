@@ -155,7 +155,7 @@ class MenuRepositoryImpl : MenuRepository
 
 ### Exclusions & Replacements
 
-Components and bindings contributed with Kimchi can support replacements and overrides in a few ways. This is handy when you want to provide different bindings/contributions for instrumentation tests, or different build flavors.
+Components and bindings contributed with Kimchi can support replacements and overrides in a few ways. This is handy when you, for example, want to provide different bindings/contributions for instrumentation tests or different build flavors.
 
 **Using `replaces = […]` parameter**
 
