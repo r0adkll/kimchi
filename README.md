@@ -172,7 +172,7 @@ Then if both `TestMenuRepository` and `MenuRepositoryImpl` are on the classpath,
 
 **Using `rank` parameter**
 
-When using `@ContributesBinding` if you don't have access to the class/implementation that you want to replace/override on the classpath (e.g. if you are doing a sort of `no-op` setup) then you can define a `rank` integer that kimchi will use to determine priority when merging  contributions of the same scope and bound on the classpath. The higher rank will always replace lower ranks and if components have the same rank then an error will be thrown.
+When using `@ContributesBinding`, if you don't have access to the class/implementation that you want to replace/override on the classpath (e.g. if you are doing a sort of `no-op` setup), then you can define a `rank` integer that kimchi will use to determine priority when merging  contributions of the same scope and bound on the classpath. The higher rank will always replace lower ranks. If components have the same rank then an error will be thrown.
 
 e.g.
 ```kotlin
