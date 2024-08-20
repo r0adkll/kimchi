@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.restaurant
 
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +19,6 @@ import com.r0adkll.kimchi.restaurant.common.session.UserSession
 import com.r0adkll.kimchi.restaurant.di.UserComponent
 import com.slack.circuit.backstack.rememberSaveableBackStack
 import com.slack.circuit.foundation.rememberCircuitNavigator
-import kimchi.merge.com.r0adkll.kimchi.restaurant.create
 import kimchi.merge.com.r0adkll.kimchi.restaurant.createDesktopApplicationComponent
 
 @Suppress("CAST_NEVER_SUCCEEDS", "UNCHECKED_CAST", "USELESS_CAST", "KotlinRedundantDiagnosticSuppress")
@@ -66,10 +64,6 @@ fun main() = application {
     component.restaurantContent(
       backstack,
       navigator,
-      WindowInsets(
-        top = 24.dp,
-        bottom = 24.dp,
-      ),
       Modifier,
     )
   }

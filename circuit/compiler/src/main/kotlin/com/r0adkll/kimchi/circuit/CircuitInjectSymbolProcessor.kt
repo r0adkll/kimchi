@@ -13,6 +13,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.validate
 import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.circuit.annotations.CircuitInject
+import com.r0adkll.kimchi.circuit.annotations.CircuitInjectAnnotation
 import com.r0adkll.kimchi.circuit.util.ClassNames
 import com.r0adkll.kimchi.circuit.util.MemberNames
 import com.r0adkll.kimchi.circuit.util.addUiFactoryCreateStatement
@@ -20,10 +21,7 @@ import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.capitalized
 import com.r0adkll.kimchi.util.ksp.directReturnTypeIs
-import com.r0adkll.kimchi.util.ksp.findAnnotation
 import com.r0adkll.kimchi.util.ksp.getAllSymbolsWithAnnotation
-import com.r0adkll.kimchi.util.ksp.getScope
-import com.r0adkll.kimchi.util.ksp.getScreen
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.implements
 import com.r0adkll.kimchi.util.ksp.returnTypeIs
@@ -104,6 +102,7 @@ class CircuitInjectSymbolProcessor(
     val classSimpleName = "${element.simpleName.asString()}UiFactory"
     val className = ClassName(packageName, classSimpleName)
     val componentClassName = ClassName(packageName, "${classSimpleName}Component")
+    val annotation = CircuitInjectAnnotation.from(element)
 
     // Verify that this element has @Composable annotation @ first param is state
     // and it
@@ -116,24 +115,13 @@ class CircuitInjectSymbolProcessor(
       throw KimchiException("Circuit Ui functions can only return 'Unit'", element)
     }
 
-    // Get the targeted scope and screen
-    val scope = element.findAnnotation(CircuitInject::class)
-      ?.getScope()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find scope to contribute injection to")
-
-    val screen = element.findAnnotation(CircuitInject::class)
-      ?.getScreen()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find screen for injected UI")
-
     return FileSpec.buildFile(packageName, classSimpleName) {
       addType(
         TypeSpec.interfaceBuilder(componentClassName)
           .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(
             AnnotationSpec.builder(ContributesTo::class)
-              .addMember("%T::class", scope)
+              .addMember("%T::class", annotation.scope)
               .build(),
           )
           .addFunction(
@@ -166,10 +154,10 @@ class CircuitInjectSymbolProcessor(
               .addCode(
                 CodeBlock.builder()
                   .beginControlFlow("return when(screen)")
-                  .beginControlFlow("is %T ->", screen)
+                  .beginControlFlow("is %T ->", annotation.screen)
                   .addUiFactoryCreateStatement(
                     element = element,
-                    screen = screen,
+                    screen = annotation.screen,
                   )
                   .endControlFlow()
                   .addStatement("else -> null")
@@ -188,21 +176,11 @@ class CircuitInjectSymbolProcessor(
     val classSimpleName = "${element.simpleName.asString()}Factory"
     val className = ClassName(packageName, classSimpleName)
     val componentClassName = ClassName(packageName, "${classSimpleName}Component")
-
-    // Get the targeted scope and screen
-    val scope = element.findAnnotation(CircuitInject::class)
-      ?.getScope()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find scope to contribute injection to")
-
-    val screen = element.findAnnotation(CircuitInject::class)
-      ?.getScreen()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find screen for injected UI")
+    val annotation = CircuitInjectAnnotation.from(element)
 
     // Gather all assisted annotated parameters and evaluate providing them
     val allowedAssistedTypes = listOf(
-      screen,
+      annotation.screen,
       ClassNames.Circuit.Context,
     )
 
@@ -234,7 +212,7 @@ class CircuitInjectSymbolProcessor(
           .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(
             AnnotationSpec.builder(ContributesTo::class)
-              .addMember("%T::class", scope)
+              .addMember("%T::class", annotation.scope)
               .build(),
           )
           .addFunction(
@@ -280,7 +258,7 @@ class CircuitInjectSymbolProcessor(
                   .beginControlFlow("return when(screen)")
                   .addStatement(
                     "is %T -> uiFactory(${assistInjectedParameters.joinToString { it.name }})",
-                    screen,
+                    annotation.screen,
                   )
                   .addStatement("else -> null")
                   .endControlFlow()
@@ -298,6 +276,7 @@ class CircuitInjectSymbolProcessor(
     val classSimpleName = "${element.simpleName.asString().capitalized()}Factory"
     val className = ClassName(packageName, classSimpleName)
     val componentClassName = ClassName(packageName, "${classSimpleName}Component")
+    val annotation = CircuitInjectAnnotation.from(element)
 
     // Verify that this element has @Composable annotation
     if (!element.hasAnnotation(ClassNames.Composable)) {
@@ -309,24 +288,13 @@ class CircuitInjectSymbolProcessor(
       throw KimchiException("Annotated presenter functions must return a class that implements CircuitUiState", element)
     }
 
-    // Get the targeted scope and screen
-    val scope = element.findAnnotation(CircuitInject::class)
-      ?.getScope()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find scope to contribute injection to")
-
-    val screen = element.findAnnotation(CircuitInject::class)
-      ?.getScreen()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find screen for injected UI")
-
     return FileSpec.buildFile(packageName, classSimpleName) {
       addType(
         TypeSpec.interfaceBuilder(componentClassName)
           .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(
             AnnotationSpec.builder(ContributesTo::class)
-              .addMember("%T::class", scope)
+              .addMember("%T::class", annotation.scope)
               .build(),
           )
           .addFunction(
@@ -360,7 +328,7 @@ class CircuitInjectSymbolProcessor(
               .addCode(
                 CodeBlock.builder()
                   .beginControlFlow("return when(screen)")
-                  .beginControlFlow("is %T ->", screen)
+                  .beginControlFlow("is %T ->", annotation.screen)
                   .addStatement(
                     "%M { %T() }",
                     MemberNames.CircuitPresenterOf,
@@ -383,6 +351,7 @@ class CircuitInjectSymbolProcessor(
     val classSimpleName = "${element.simpleName.asString()}Factory"
     val className = ClassName(packageName, classSimpleName)
     val componentClassName = ClassName(packageName, "${classSimpleName}Component")
+    val annotation = CircuitInjectAnnotation.from(element)
 
     // Verify that this element has @Composable annotation @ first param is state
     // and it
@@ -390,20 +359,9 @@ class CircuitInjectSymbolProcessor(
       throw KimchiException("@CircuitInject on presenter classes must have an @Inject annotation", element)
     }
 
-    // Get the targeted scope and screen
-    val scope = element.findAnnotation(CircuitInject::class)
-      ?.getScope()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find scope to contribute injection to", element)
-
-    val screen = element.findAnnotation(CircuitInject::class)
-      ?.getScreen()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find screen for injected UI", element)
-
     // Gather all assisted annotated parameters and evaluate providing them
     val allowedAssistedTypes = listOf(
-      screen,
+      annotation.screen,
       ClassNames.Circuit.Navigator,
       ClassNames.Circuit.Context,
     )
@@ -431,7 +389,7 @@ class CircuitInjectSymbolProcessor(
           .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(
             AnnotationSpec.builder(ContributesTo::class)
-              .addMember("%T::class", scope)
+              .addMember("%T::class", annotation.scope)
               .build(),
           )
           .addFunction(
@@ -483,7 +441,7 @@ class CircuitInjectSymbolProcessor(
                   .beginControlFlow("return when(screen)")
                   .addStatement(
                     "is %T -> presenterFactory(${assistInjectedParameters.joinToString { it.name }})",
-                    screen,
+                    annotation.screen,
                   )
                   .addStatement("else -> null")
                   .endControlFlow()

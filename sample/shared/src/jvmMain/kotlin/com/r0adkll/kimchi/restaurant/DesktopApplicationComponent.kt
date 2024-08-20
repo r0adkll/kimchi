@@ -11,7 +11,10 @@ import java.util.prefs.Preferences
 import me.tatarka.inject.annotations.Provides
 
 @SingleIn(AppScope::class)
-@MergeComponent(AppScope::class)
+@MergeComponent(
+  scope = AppScope::class,
+  excludes = [WindowComponent::class],
+)
 abstract class DesktopApplicationComponent : SharedAppComponent {
 
   @SingleIn(AppScope::class)

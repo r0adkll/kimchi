@@ -9,7 +9,6 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.squareup.kotlinpoet.ClassName
@@ -42,45 +41,11 @@ fun KSAnnotation.isAnnotation(kclass: KClass<*>): Boolean {
   return hasName(className.packageName, className.simpleName)
 }
 
-fun KSAnnotation.isAnnotation(packageName: String, simpleName: String): Boolean {
-  return hasName(packageName, simpleName)
-}
-
 private fun KSAnnotation.hasName(packageName: String, simpleName: String): Boolean {
   // we can skip resolving if the short name doesn't match
   if (shortName.asString() != simpleName) return false
   val declaration = annotationType.resolve().declaration
   return declaration.packageName.asString() == packageName
-}
-
-fun KSAnnotation.getScope(): KSDeclaration? {
-  return let {
-    it.arguments.find { it.name?.asString() == "scope" }
-      ?: it.arguments.firstOrNull()
-  }
-    ?.value
-    ?.let { it as? KSType }
-    ?.declaration
-}
-
-fun KSAnnotation.getScreen(): KSDeclaration? {
-  return let {
-    it.arguments.find { it.name?.asString() == "screen" }
-      ?: it.arguments.getOrNull(1)
-  }
-    ?.value
-    ?.let { it as? KSType }
-    ?.declaration
-}
-
-fun KSAnnotation.getParentScope(): KSDeclaration? {
-  return let {
-    it.arguments.find { it.name?.asString() == "parentScope" }
-      ?: it.arguments.getOrNull(1)
-  }
-    ?.value
-    ?.let { it as? KSType }
-    ?.declaration
 }
 
 fun KSTypeAlias.findActualType(): KSClassDeclaration {
@@ -109,11 +74,6 @@ fun Resolver.getSymbolsWithClassAnnotation(kclass: KClass<*>): Sequence<KSClassD
   return getSymbolsWithClassAnnotation(className.packageName, className.simpleName)
 }
 
-fun Resolver.getSymbolsWithFunctionAnnotation(kclass: KClass<*>): Sequence<KSFunctionDeclaration> {
-  val className = kclass.asClassName()
-  return getSymbolsWithFunctionAnnotation(className.packageName, className.simpleName)
-}
-
 fun Resolver.getAllSymbolsWithAnnotation(kclass: KClass<*>): Sequence<KSDeclaration> {
   val className = kclass.asClassName()
   return getAllSymbolsWithAnnotation(className.packageName, className.simpleName)
@@ -127,31 +87,6 @@ fun Resolver.getSymbolsWithClassAnnotation(packageName: String, simpleName: Stri
   suspend fun SequenceScope<KSClassDeclaration>.visit(declarations: Sequence<KSDeclaration>) {
     for (declaration in declarations) {
       if (declaration is KSClassDeclaration) {
-        if (declaration.hasAnnotation(packageName, simpleName)) {
-          yield(declaration)
-        }
-        visit(declaration.declarations)
-      }
-    }
-  }
-  return sequence {
-    for (file in getNewFiles()) {
-      visit(file.declarations)
-    }
-  }
-}
-
-/**
- * A 'fast' version of [Resolver.getSymbolsWithAnnotation]. We only care about class annotations so we can skip a lot
- * of the tree.
- */
-fun Resolver.getSymbolsWithFunctionAnnotation(
-  packageName: String,
-  simpleName: String,
-): Sequence<KSFunctionDeclaration> {
-  suspend fun SequenceScope<KSFunctionDeclaration>.visit(declarations: Sequence<KSDeclaration>) {
-    for (declaration in declarations) {
-      if (declaration is KSFunctionDeclaration) {
         if (declaration.hasAnnotation(packageName, simpleName)) {
           yield(declaration)
         }

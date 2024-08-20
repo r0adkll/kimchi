@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.restaurant.root
 
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -17,11 +16,9 @@ import com.slack.circuitx.gesturenavigation.GestureNavigationDecoration
 internal fun Home(
   backstack: SaveableBackStack,
   navigator: Navigator,
-  windowInsets: WindowInsets,
   modifier: Modifier = Modifier,
 ) {
   Scaffold(
-    contentWindowInsets = windowInsets,
     modifier = modifier,
   ) { paddingValues ->
     NavigableCircuitContent(

@@ -6,16 +6,15 @@ import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.restaurant.common.scopes.SingleIn
 import com.r0adkll.kimchi.restaurant.common.scopes.UiScope
 import com.r0adkll.kimchi.restaurant.common.scopes.UserScope
-import com.r0adkll.kimchi.restaurant.di.UiComponent
-import com.r0adkll.kimchi.restaurant.root.RestaurantContentWithInsets
+import com.r0adkll.kimchi.restaurant.root.RestaurantContent
 
 @SingleIn(UiScope::class)
 @ContributesSubcomponent(
   scope = UiScope::class,
   parentScope = UserScope::class,
 )
-interface WindowComponent : UiComponent {
-  val restaurantContent: RestaurantContentWithInsets
+interface WindowComponent {
+  val restaurantContent: RestaurantContent
 
   @ContributesSubcomponent.Factory
   interface Factory {
