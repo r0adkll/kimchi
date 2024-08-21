@@ -5,7 +5,6 @@ package com.r0adkll.kimchi.restaurant.android.di
 import android.app.Activity
 import androidx.core.os.ConfigurationCompat
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
-import com.r0adkll.kimchi.restaurant.WindowComponent
 import com.r0adkll.kimchi.restaurant.common.scopes.SingleIn
 import com.r0adkll.kimchi.restaurant.common.scopes.UiScope
 import com.r0adkll.kimchi.restaurant.common.scopes.UserScope
@@ -17,7 +16,6 @@ import me.tatarka.inject.annotations.Provides
 @ContributesSubcomponent(
   scope = UiScope::class,
   parentScope = UserScope::class,
-  replaces = [WindowComponent::class],
 )
 interface ActivityComponent {
   val restaurantContent: RestaurantContent

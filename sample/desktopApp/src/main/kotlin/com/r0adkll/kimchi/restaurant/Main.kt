@@ -16,10 +16,12 @@ import androidx.compose.ui.window.rememberWindowState
 import com.r0adkll.kimchi.restaurant.common.ComponentHolder
 import com.r0adkll.kimchi.restaurant.common.screens.MenuScreen
 import com.r0adkll.kimchi.restaurant.common.session.UserSession
+import com.r0adkll.kimchi.restaurant.di.DesktopApplicationComponent
 import com.r0adkll.kimchi.restaurant.di.UserComponent
+import com.r0adkll.kimchi.restaurant.di.WindowComponent
 import com.slack.circuit.backstack.rememberSaveableBackStack
 import com.slack.circuit.foundation.rememberCircuitNavigator
-import kimchi.merge.com.r0adkll.kimchi.restaurant.createDesktopApplicationComponent
+import kimchi.merge.com.r0adkll.kimchi.restaurant.di.createDesktopApplicationComponent
 
 @Suppress("CAST_NEVER_SUCCEEDS", "UNCHECKED_CAST", "USELESS_CAST", "KotlinRedundantDiagnosticSuppress")
 fun main() = application {

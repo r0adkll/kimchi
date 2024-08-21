@@ -1,6 +1,6 @@
 // Copyright (C) 2023 r0adkll
 // SPDX-License-Identifier: Apache-2.0
-package com.r0adkll.kimchi.restaurant
+package com.r0adkll.kimchi.restaurant.di
 
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.restaurant.common.scopes.SingleIn
