@@ -133,6 +133,6 @@ annotation class ContributesSubcomponent(
    * ```
    */
   @Target(AnnotationTarget.CLASS)
-  @Retention(AnnotationRetention.SOURCE)
+  @Retention(AnnotationRetention.BINARY)
   annotation class Factory
 }

@@ -9,9 +9,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.r0adkll.kimchi.HINT_BINDING_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesBinding
-import com.r0adkll.kimchi.util.ksp.findAnnotation
-import com.r0adkll.kimchi.util.ksp.getScope
-import com.r0adkll.kimchi.util.toClassName
+import com.r0adkll.kimchi.annotations.ContributesBindingAnnotation
 import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
 
@@ -30,9 +28,6 @@ internal class ContributesBindingSymbolProcessor(
     get() = ContributesBinding::class
 
   override fun getScope(element: KSClassDeclaration): ClassName {
-    return element.findAnnotation(ContributesBinding::class)
-      ?.getScope()
-      ?.toClassName()
-      ?: throw IllegalArgumentException("Unable to find scope for ${element.qualifiedName}")
+    return ContributesBindingAnnotation.from(element).scope
   }
 }

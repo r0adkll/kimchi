@@ -15,7 +15,7 @@ import platform.UIKit.UIViewController
   scope = UiScope::class,
   parentScope = UserScope::class,
 )
-interface HomeUiControllerComponent : UiComponent {
+interface HomeUiControllerComponent {
   val uiViewControllerFactory: () -> UIViewController
 
   @Provides

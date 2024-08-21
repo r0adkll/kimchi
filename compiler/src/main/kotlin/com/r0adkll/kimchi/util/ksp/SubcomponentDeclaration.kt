@@ -8,6 +8,7 @@ import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
+import com.r0adkll.kimchi.annotations.ContributesSubcomponentAnnotation
 import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.buildFun
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
@@ -27,6 +28,10 @@ class SubcomponentDeclaration(
 
   val subcomponentSimpleName: String
     get() = "Merged${simpleName.asString()}"
+
+  val annotation: ContributesSubcomponentAnnotation by lazy {
+    ContributesSubcomponentAnnotation.from(clazz)
+  }
 
   @OptIn(KspExperimental::class)
   val factoryClass: FactoryDeclaration by lazy {

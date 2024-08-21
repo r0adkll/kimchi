@@ -4,7 +4,6 @@ plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.kotlinAndroid)
   alias(libs.plugins.compose.compiler)
-  alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.ksp)
 }
 
@@ -22,6 +21,7 @@ android {
 
   buildFeatures {
     compose = true
+    buildConfig = true
   }
 
   packaging {
@@ -51,12 +51,6 @@ dependencies {
   implementation(libs.androidx.activity.compose)
   implementation(libs.circuit.runtime)
   implementation(libs.circuit.foundation)
-
-  api(compose.foundation)
-  api(compose.material)
-  api(compose.material3)
-  api(compose.materialIconsExtended)
-  api(compose.animation)
 
   ksp(projects.compiler)
   ksp(libs.kotlininject.ksp)

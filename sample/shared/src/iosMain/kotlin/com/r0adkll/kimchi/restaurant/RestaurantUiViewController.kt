@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
@@ -35,6 +36,7 @@ fun RestaurantUiViewController(
     with(LocalDensity.current) { 8.dp.toPx() },
   )
 
+  LocalWindowInfo
   CompositionLocalProvider(LocalViewConfiguration provides vc) {
     restaurantContent(
       backstack,
