@@ -80,23 +80,13 @@ jobs:
         run: ./gradlew publish -PmavenCentralUsername=${{ secrets.SONATYPEUSERNAME }} -PmavenCentralPassword=${{ secrets.SONATYPEPASSWORD }} --no-configuration-cache
 
   create-release:
-    runs-on: macos-latest
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
     needs: [ build ]
     if: github.repository == 'r0adkll/kimchi' && contains(github.ref, 'refs/tags/')
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: 17
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
 
       - name: Extract release notes
         id: extract-release-notes
