@@ -27,3 +27,4 @@ TODO: Use https://github.com/ffurrer2/extract-release-notes when crafting a rele
 ### Added
 
 - Migrated implementation from Deckbox and Campfire
+- Initial Release
