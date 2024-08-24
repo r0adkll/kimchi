@@ -10,7 +10,7 @@ import com.squareup.kotlinpoet.ClassName
 /**
  * Get the arguments value as a ClassName, if possible
  */
-val KSValueArgument.valueAsClassName: ClassName?
+public val KSValueArgument.valueAsClassName: ClassName?
   get() = value
     ?.let { it as? KSType }
     ?.declaration
@@ -19,7 +19,7 @@ val KSValueArgument.valueAsClassName: ClassName?
 /**
  * Get the arguments value as a list of class names, if possible
  */
-val KSValueArgument.valueAsClassNameList: List<ClassName>?
+public val KSValueArgument.valueAsClassNameList: List<ClassName>?
   get() = value
     ?.let { it as? List<*> }
     ?.mapNotNull {

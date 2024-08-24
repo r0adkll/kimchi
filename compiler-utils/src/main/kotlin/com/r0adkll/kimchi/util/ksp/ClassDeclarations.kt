@@ -11,7 +11,7 @@ import com.squareup.kotlinpoet.ksp.toClassName
  * Return whether or not this [KSClassDeclaration] has a supertype of type [clazz] anywhere
  * it its supertype hierarchy
  */
-fun KSClassDeclaration.implements(className: ClassName): Boolean {
+public fun KSClassDeclaration.implements(className: ClassName): Boolean {
   return getAllSuperTypes().any {
     it.toClassName() == className
   }

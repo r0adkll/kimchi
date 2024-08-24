@@ -7,9 +7,9 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 
-class KimchiException(
+public class KimchiException(
   message: String,
-  val node: KSNode? = null,
+  public val node: KSNode? = null,
   cause: Throwable? = null,
 ) : Exception(message, cause) {
 
