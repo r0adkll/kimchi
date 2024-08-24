@@ -26,6 +26,7 @@ import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.kotlinpoet.addBinding
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
+import com.r0adkll.kimchi.util.ksp.findInjectScope
 import com.r0adkll.kimchi.util.ksp.getSymbolsWithClassAnnotation
 import com.r0adkll.kimchi.util.ksp.isInterface
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -198,6 +199,11 @@ internal class MergeComponentSymbolProcessor(
         .forEach { addOriginatingKSFile(it) }
 
       addModifiers(KModifier.ABSTRACT)
+
+      // Pass along any scope that was attached to the component
+      element.findInjectScope()?.let { scopeAnnotation ->
+        addAnnotation(scopeAnnotation.toAnnotationSpec())
+      }
 
       // Mark our generated class as the component to be generated
       addAnnotation(Component::class)

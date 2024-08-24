@@ -9,7 +9,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 
-fun FileSpec.Companion.buildFile(
+public fun FileSpec.Companion.buildFile(
   packageName: String,
   fileName: String,
   builder: FileSpec.Builder.() -> Unit,
@@ -17,14 +17,14 @@ fun FileSpec.Companion.buildFile(
   .apply(builder)
   .build()
 
-fun TypeSpec.Companion.buildClass(
+public fun TypeSpec.Companion.buildClass(
   name: String,
   builder: TypeSpec.Builder.() -> Unit,
 ): TypeSpec = classBuilder(name)
   .apply(builder)
   .build()
 
-fun PropertySpec.Companion.buildProperty(
+public fun PropertySpec.Companion.buildProperty(
   name: String,
   type: ClassName,
   builder: PropertySpec.Builder.() -> Unit,
@@ -32,11 +32,11 @@ fun PropertySpec.Companion.buildProperty(
   .apply(builder)
   .build()
 
-fun FunSpec.Companion.buildFun(
+public fun FunSpec.Companion.buildFun(
   name: String,
   builder: FunSpec.Builder.() -> Unit,
 ): FunSpec = builder(name)
   .apply(builder)
   .build()
 
-fun KSDeclaration.toClassName(): ClassName = ClassName(packageName.asString(), simpleName.asString())
+public fun KSDeclaration.toClassName(): ClassName = ClassName(packageName.asString(), simpleName.asString())

@@ -22,9 +22,16 @@ TODO: Use https://github.com/ffurrer2/extract-release-notes when crafting a rele
 ### Other Notes & Contributions
 
 
-## [0.2.0] - 2024-*
+## [0.1.1] - 2024-08-24
 
-- _TODO_
+### Added
+
+- Added testFixtures in the `compiler-utils` module for writing Kimchi unit tests.
+
+### Fixed
+
+- Fixed kinject scopes not transferring to the underlying merged components.
+
 
 ## [0.1.0] - 2024-08-14
 

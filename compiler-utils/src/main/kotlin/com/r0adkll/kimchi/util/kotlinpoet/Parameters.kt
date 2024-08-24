@@ -7,7 +7,7 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-fun KSValueParameter.toParameterSpec(
+public fun KSValueParameter.toParameterSpec(
   builder: ParameterSpec.Builder.() -> Unit = {},
 ): ParameterSpec {
   return ParameterSpec.builder(name!!.asString(), type.toTypeName())
