@@ -1,0 +1,15 @@
+#!/bin/sh
+
+echo "**** Running Pre-Push Check ****"
+
+git stash -q --keep-index
+
+./gradlew spotlessCheck
+
+status=$?
+
+git stash pop -q
+
+echo "**** Pre-Push Check Finished ****"
+
+exit $status

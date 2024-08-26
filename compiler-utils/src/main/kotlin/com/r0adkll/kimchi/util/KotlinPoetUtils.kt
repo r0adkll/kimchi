@@ -39,4 +39,14 @@ public fun FunSpec.Companion.buildFun(
   .apply(builder)
   .build()
 
+public fun FunSpec.Companion.buildConstructor(
+  builder: FunSpec.Builder.() -> Unit,
+): FunSpec = constructorBuilder()
+  .apply(builder)
+  .build()
+
 public fun KSDeclaration.toClassName(): ClassName = ClassName(packageName.asString(), simpleName.asString())
+
+public fun <T> T.applyIf(predicate: Boolean, block: T.() -> Unit): T {
+  return if (predicate) apply(block) else this
+}
