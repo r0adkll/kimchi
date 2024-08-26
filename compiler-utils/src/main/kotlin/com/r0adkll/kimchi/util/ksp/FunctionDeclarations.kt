@@ -17,14 +17,23 @@ import kotlin.reflect.KClass
  * passed [className]
  */
 public fun KSFunctionDeclaration.findParameterThatImplements(className: ClassName): KSValueParameter? {
-  return parameters.find { parameter ->
-    val classDecl = parameter.type.resolve().declaration as? KSClassDeclaration
-    if (classDecl != null) {
-      return@find classDecl.getAllSuperTypes()
-        .any { it.declaration.toClassName() == className }
-    }
-    false
+  return parameters.find { parameter -> parameter.implements(className) }
+}
+
+/**
+ * Return whether or not the current [KSValueParameter] implements the passed [className]
+ * @receiver a [KSValueParameter] to evaluate
+ * @param className the [ClassName] of the type you are looking for
+ */
+public fun KSValueParameter.implements(className: ClassName): Boolean {
+  val classDecl = type.resolve().declaration as? KSClassDeclaration
+  if (classDecl != null) {
+    // Check if the direct type implements the passed className
+    if (classDecl.toClassName() == className) return true
+    return classDecl.getAllSuperTypes()
+      .any { it.declaration.toClassName() == className }
   }
+  return false
 }
 
 public fun KSFunctionDeclaration.findParameterThatIs(className: ClassName): KSValueParameter? {
