@@ -5,7 +5,6 @@ package com.r0adkll.kimchi.circuit.util
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.r0adkll.kimchi.util.ksp.findActualType
 import com.r0adkll.kimchi.util.ksp.findParameterThatImplements
-import com.r0adkll.kimchi.util.ksp.findParameterThatIs
 import com.r0adkll.kimchi.util.ksp.implements
 import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.ClassName
@@ -33,7 +32,7 @@ fun CodeBlock.Builder.addUiFactoryCreateStatement(
 
   // Validate that a modifier exists, taking the assumption that it is the last parameter
   // due to the nature of standard composable function setups
-  element.findParameterThatIs(ClassNames.Modifier)
+  element.findParameterThatImplements(ClassNames.Modifier)
     ?: throw IllegalStateException("@CircuitInject requires your composable function to have a Modifier parameter")
 
   // If we couldn't find a provided state class name, assume that this is a [StaticScreen] and just pass a root

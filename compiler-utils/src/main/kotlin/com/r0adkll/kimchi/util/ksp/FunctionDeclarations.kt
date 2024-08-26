@@ -10,6 +10,7 @@ import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlin.reflect.KClass
 
 /**
@@ -34,12 +35,6 @@ public fun KSValueParameter.implements(className: ClassName): Boolean {
       .any { it.declaration.toClassName() == className }
   }
   return false
-}
-
-public fun KSFunctionDeclaration.findParameterThatIs(className: ClassName): KSValueParameter? {
-  return parameters.find { parameter ->
-    parameter.type.resolve().toClassName() == className
-  }
 }
 
 public fun KSFunctionDeclaration.returnTypeIs(clazz: KClass<*>): Boolean {
