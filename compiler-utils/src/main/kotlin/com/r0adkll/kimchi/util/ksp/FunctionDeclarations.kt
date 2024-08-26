@@ -10,7 +10,6 @@ import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
-import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlin.reflect.KClass
 
 /**
