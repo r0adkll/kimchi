@@ -21,6 +21,11 @@ TODO: Use https://github.com/ffurrer2/extract-release-notes when crafting a rele
 
 ### Other Notes & Contributions
 
+## [0.2.0] - 2024-08-26
+
+## Added
+
+- [Circuit] Added ability to inject additional elements into Ui composable functions - #30
 
 ## [0.1.1] - 2024-08-24
 
