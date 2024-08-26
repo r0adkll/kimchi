@@ -36,12 +36,6 @@ public fun KSValueParameter.implements(className: ClassName): Boolean {
   return false
 }
 
-public fun KSFunctionDeclaration.findParameterThatIs(className: ClassName): KSValueParameter? {
-  return parameters.find { parameter ->
-    parameter.type.resolve().toClassName() == className
-  }
-}
-
 public fun KSFunctionDeclaration.returnTypeIs(clazz: KClass<*>): Boolean {
   return returnTypeIs(clazz.asClassName())
 }
