@@ -1,4 +1,3 @@
 #!/bin/sh
 
 ./gradlew spotlessApply
-./gradlew -P gradle/build-logic spotlessApply

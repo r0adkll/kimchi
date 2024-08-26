@@ -21,7 +21,6 @@ import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.applyIf
 import com.r0adkll.kimchi.util.buildConstructor
 import com.r0adkll.kimchi.util.buildFile
-import com.r0adkll.kimchi.util.buildFun
 import com.r0adkll.kimchi.util.capitalized
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.directReturnTypeIs
@@ -169,10 +168,10 @@ class CircuitInjectSymbolProcessor(
                     PropertySpec.builder(param.name!!.asString(), param.type.toTypeName())
                       .initializer(param.name!!.asString())
                       .addModifiers(KModifier.PRIVATE)
-                      .build()
+                      .build(),
                   )
                 }
-              }
+              },
             )
           }
           .addFunction(

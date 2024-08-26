@@ -3,7 +3,6 @@
 package com.r0adkll.kimchi.circuit.util
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
 import com.r0adkll.kimchi.util.ksp.findActualType
 import com.r0adkll.kimchi.util.ksp.findParameterThatImplements
 import com.r0adkll.kimchi.util.ksp.findParameterThatIs
@@ -16,7 +15,6 @@ fun CodeBlock.Builder.addUiFactoryCreateStatement(
   element: KSFunctionDeclaration,
   screen: ClassName,
 ): CodeBlock.Builder = apply {
-
   // Build creation code block string, taking special account for the names
   // of parameters that we generate as part of the Ui.Factory, ignoring w/e the
   // user has named their parameters

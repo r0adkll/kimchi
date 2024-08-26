@@ -1,14 +1,13 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.circuit
 
 import java.io.File
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.CleanupMode
 import org.junit.jupiter.api.io.TempDir
 import strikt.api.expectThat
-import strikt.assertions.elementAt
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
 import strikt.assertions.withElementAt
 
 class UiFunctionFactoryTest {
