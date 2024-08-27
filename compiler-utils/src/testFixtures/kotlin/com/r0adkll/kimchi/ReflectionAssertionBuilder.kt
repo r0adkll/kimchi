@@ -4,14 +4,23 @@ package com.r0adkll.kimchi
 
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
+import kotlin.reflect.KClassifier
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
+import kotlin.reflect.KProperty2
 import kotlin.reflect.full.allSuperclasses
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.declaredMembers
+import kotlin.reflect.full.extensionReceiverParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import strikt.api.Assertion
 import strikt.assertions.elementAt
+import strikt.assertions.filterIsInstance
+import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 
 public fun <E : KAnnotatedElement> Assertion.Builder<E>.hasAnnotation(
@@ -50,6 +59,31 @@ public fun Assertion.Builder<KClass<*>>.implements(
       description = "does not implement",
     )
   }
+}
+
+public fun Assertion.Builder<KClass<*>>.declaredProperties(
+): Assertion.Builder<List<KProperty2<*, *, *>>> {
+  return get { declaredMembers }
+    .filterIsInstance<KProperty2<*, *, *>>()
+}
+
+public fun Assertion.Builder<KProperty2<*, *, *>>.hasReceiverOf(
+  clazz: KClass<*>,
+): Assertion.Builder<KClassifier?> {
+  return get { extensionReceiverParameter }
+    .isNotNull()
+    .get { type.classifier } isEqualTo clazz
+}
+
+public fun Assertion.Builder<KProperty2<*, *, *>>.hasReturnTypeOf(
+  clazz: KClass<*>,
+): Assertion.Builder<KClassifier?> {
+  return get { returnType.classifier } isEqualTo clazz
+}
+
+public fun Assertion.Builder<KProperty2<*, *, *>>.getter(
+): Assertion.Builder<KProperty2.Getter<*, *, *>> {
+  return get { getter }
 }
 
 public inline fun Assertion.Builder<KClass<*>>.withFunction(
