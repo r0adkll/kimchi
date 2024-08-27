@@ -9,6 +9,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSName
 import com.google.devtools.ksp.validate
 import com.r0adkll.kimchi.ClassScanner
 import com.r0adkll.kimchi.annotations.ContributesBinding
@@ -29,7 +30,8 @@ import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
 import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
 import com.r0adkll.kimchi.util.ksp.findInjectScope
-import com.r0adkll.kimchi.util.ksp.getSymbolsWithClassAnnotation
+import com.r0adkll.kimchi.util.ksp.findQualifier
+import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.isInterface
 import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -63,32 +65,31 @@ internal class MergeComponentSymbolProcessor(
   private val isGenerateCompanionExtensionsEnabled: Boolean
     get() = env.options["me.tatarka.inject.generateCompanionExtensions"] == "true"
 
-  private var deferred: MutableList<KSClassDeclaration> = mutableListOf()
-
   override fun process(resolver: Resolver): List<KSAnnotated> {
     val classScanner = ClassScanner(resolver, env.logger)
+    val deferred = mutableListOf<KSClassDeclaration>()
 
-    val previousDiffered = deferred
-    deferred = mutableListOf()
-
-    // Process previously deferred symbols
-    for (element in previousDiffered) {
-      process(classScanner, element).let { fileSpec ->
-        fileSpec.writeTo(
-          codeGenerator = env.codeGenerator,
-          dependencies = fileSpec.kspDependencies(aggregating = true),
-        )
+    // Scan new files for contributing annotations
+    val anyNewContributed = resolver.getNewFiles()
+      .flatMap { it.declarations }
+      .filterIsInstance<KSClassDeclaration>()
+      .any {
+        it.hasAnnotation(ContributesBinding::class) ||
+          it.hasAnnotation(ContributesMultibinding::class) ||
+          it.hasAnnotation(ContributesTo::class) ||
+          it.hasAnnotation(ContributesSubcomponent::class)
       }
-    }
 
     // Scan for new annotations to be processed
     resolver
-      .getSymbolsWithClassAnnotation(MergeComponent::class)
+      .getSymbolsWithAnnotation(MergeComponent::class.qualifiedName!!)
+      .filterIsInstance<KSClassDeclaration>()
       .forEach { element ->
-        // If there are still new files being generated defer the processing of
-        // this to be last so that we can make sure we pick up hints being generated in the
+        // If there are still new files that are contributing then defer the processing of
+        // this to later so that we can make sure we pick up hints being generated in the
         // same module
-        if (resolver.getNewFiles().any()) {
+        if (anyNewContributed) {
+          env.logger.info("New contributions still being generated, deferring ${element.qualifiedName?.asString()}")
           deferred += element
         } else if (element.validate()) {
           process(classScanner, element).let { fileSpec ->
@@ -98,6 +99,7 @@ internal class MergeComponentSymbolProcessor(
             )
           }
         } else {
+          env.logger.warn("Unable to validate, deferring ${element.qualifiedName?.asString()}")
           deferred += element
         }
       }
@@ -289,7 +291,12 @@ internal class MergeComponentSymbolProcessor(
       // Generate all the contributed bindings
       bindings
         .filterNot { replaced.contains(it.toClassName()) }
-        .groupBy { binding -> binding.findBindingTypeFor(ContributesBinding::class).toClassName() }
+        .groupBy { binding ->
+          // Qualifiers would make a binding unique, so be sure to account for it
+          val qualifier = binding.findQualifier()?.toAnnotationSpec()?.toString()
+          val boundType = binding.findBindingTypeFor(ContributesBinding::class).toClassName()
+          "$boundType${(qualifier?.let { "_$it" } ?: "")}"
+        }
         .forEach { (_, group) ->
           if (group.size == 1) {
             addBinding(group.first(), ContributesBinding::class)
@@ -304,9 +311,7 @@ internal class MergeComponentSymbolProcessor(
             // if say a third had a higher rank (which would really mask an underlying issue if that 3rd was removed)
             if (rankSet.size != group.size) {
               throw KimchiException(
-                """
-                  Multiple @ContributesBinding for the same boundType with the same rank were found:
-
+                """Multiple @ContributesBinding for the same boundType with the same rank were found:
                   ${group.joinToString("\n") { "- ${it.qualifiedName!!.asString()}" }}
                 """.trimIndent(),
               )

@@ -10,7 +10,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.r0adkll.kimchi.REFERENCE_SUFFIX
 import com.r0adkll.kimchi.SCOPE_SUFFIX
 import com.r0adkll.kimchi.util.buildFile
-import com.r0adkll.kimchi.util.ksp.getSymbolsWithClassAnnotation
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
@@ -49,7 +48,9 @@ internal abstract class HintSymbolProcessor(
   open fun validate(element: KSClassDeclaration) = Unit
 
   override fun process(resolver: Resolver): List<KSAnnotated> {
-    resolver.getSymbolsWithClassAnnotation(annotation)
+    resolver
+      .getSymbolsWithAnnotation(annotation.qualifiedName!!)
+      .filterIsInstance<KSClassDeclaration>()
       .forEach { element ->
         process(element).writeTo(
           codeGenerator = env.codeGenerator,
