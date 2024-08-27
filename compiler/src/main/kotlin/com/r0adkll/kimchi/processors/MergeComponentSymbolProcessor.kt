@@ -20,15 +20,18 @@ import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.annotations.ContributesToAnnotation
 import com.r0adkll.kimchi.annotations.MergeComponent
 import com.r0adkll.kimchi.annotations.MergingAnnotation
+import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.addIfNonNull
 import com.r0adkll.kimchi.util.buildClass
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.kotlinpoet.addBinding
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
+import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
 import com.r0adkll.kimchi.util.ksp.findInjectScope
 import com.r0adkll.kimchi.util.ksp.getSymbolsWithClassAnnotation
 import com.r0adkll.kimchi.util.ksp.isInterface
+import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -286,8 +289,32 @@ internal class MergeComponentSymbolProcessor(
       // Generate all the contributed bindings
       bindings
         .filterNot { replaced.contains(it.toClassName()) }
-        .forEach { binding ->
-          addBinding(binding, ContributesBinding::class)
+        .groupBy { binding -> binding.findBindingTypeFor(ContributesBinding::class).toClassName() }
+        .forEach { (_, group) ->
+          if (group.size == 1) {
+            addBinding(group.first(), ContributesBinding::class)
+          } else {
+            // Check if there are multiple in the group with the same rank
+            val rankSet = group
+              .map { ContributesBindingAnnotation.from(it).rank }
+              .toSet()
+
+            // We could probably have a little more grace in this check where we check if ALL have the same
+            // rank, but it seems easier to just fail if ANY duplicate bindings have the same rank, even
+            // if say a third had a higher rank (which would really mask an underlying issue if that 3rd was removed)
+            if (rankSet.size != group.size) {
+              throw KimchiException(
+                """
+                  Multiple @ContributesBinding for the same boundType with the same rank were found:
+
+                  ${group.joinToString("\n") { "- ${it.qualifiedName!!.asString()}" }}
+                """.trimIndent(),
+              )
+            } else {
+              val maxRankedBinding = group.maxBy { ContributesBindingAnnotation.from(it).rank }
+              addBinding(maxRankedBinding, ContributesBinding::class)
+            }
+          }
         }
 
       // Generate all the contributed multi-bindings
