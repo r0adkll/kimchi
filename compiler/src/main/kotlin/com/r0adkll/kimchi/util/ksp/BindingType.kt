@@ -5,6 +5,9 @@ package com.r0adkll.kimchi.util.ksp
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.r0adkll.kimchi.util.KimchiException
+import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlin.reflect.KClass
 
 fun KSClassDeclaration.findBindingTypeFor(
@@ -20,17 +23,21 @@ fun KSClassDeclaration.findBindingTypeFor(
   return if (boundTypeArgument != null && boundTypeArgument.value != defaultTypeArgument?.value) {
     (boundTypeArgument.value as KSType).declaration
   } else {
-    val superTypeCount = superTypes.count()
+    val superTypeCount = superTypes
+      .filterNot { it.toTypeName() == Any::class.asTypeName() }
+      .count()
     if (superTypeCount == 0) {
-      error(
+      throw KimchiException(
         "Bound implementation must have a single supertype, " +
           "or specify a 'boundType' if extending more than one supertype.",
+        this,
       )
     }
     if (superTypeCount > 1) {
-      error(
+      throw KimchiException(
         "Bound implementation is extending more than one supertype. " +
           "Please specify an explicit 'boundType'.",
+        this,
       )
     }
 
