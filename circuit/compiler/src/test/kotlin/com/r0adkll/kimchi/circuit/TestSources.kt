@@ -3,9 +3,11 @@
 package com.r0adkll.kimchi.circuit
 
 import com.r0adkll.kimchi.compileKimchi
+import com.r0adkll.kimchi.kotlinClass
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
+import kotlin.reflect.KClass
 import org.intellij.lang.annotations.Language
 
 @Language("kotlin")
@@ -15,6 +17,9 @@ val TestScreen = """
   data object TestScreen : Screen
 """.trimIndent()
 
+val JvmCompilationResult.testScreen: KClass<*>
+  get() = kotlinClass("kimchi.TestScreen")
+
 @Language("kotlin")
 val TestUiState = """
   package kimchi
@@ -22,11 +27,17 @@ val TestUiState = """
   class TestUiState : CircuitUiState
 """.trimIndent()
 
+val JvmCompilationResult.testUiState: KClass<*>
+  get() = kotlinClass("kimchi.TestUiState")
+
 @Language("kotlin")
 val TestScope = """
   package kimchi
   object TestScope
 """.trimIndent()
+
+val JvmCompilationResult.testScope: KClass<*>
+  get() = kotlinClass("kimchi.TestScope")
 
 @Language("kotlin")
 val Composable = """

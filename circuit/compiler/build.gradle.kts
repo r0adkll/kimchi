@@ -28,6 +28,7 @@ dependencies {
   testImplementation(testFixtures(projects.compilerUtils))
   testImplementation(libs.bundles.junit5)
   testImplementation(libs.circuit.runtime)
+  testImplementation(libs.circuit.foundation)
   testImplementation(libs.junit5.engine)
   testImplementation(libs.kotlin.compile.testing.ksp)
   testImplementation(libs.strikt.core)

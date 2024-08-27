@@ -19,6 +19,7 @@ dependencies {
   implementation(libs.kotlinpoet)
   implementation(libs.kotlinpoet.ksp)
 
+  testFixturesApi(libs.kotlin.reflect)
   testFixturesApi(libs.kotlin.compile.testing)
   testFixturesApi(libs.kotlin.compile.testing.ksp)
   testFixturesImplementation(projects.compiler)
