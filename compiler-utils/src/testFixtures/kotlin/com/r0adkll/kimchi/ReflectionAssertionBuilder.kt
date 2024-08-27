@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi
 
 import kotlin.reflect.KAnnotatedElement
@@ -13,7 +15,7 @@ import strikt.assertions.elementAt
 import strikt.assertions.isNotNull
 
 public fun <E : KAnnotatedElement> Assertion.Builder<E>.hasAnnotation(
-  annotation: KClass<*>
+  annotation: KClass<*>,
 ): Assertion.Builder<E> {
   return assert("has the annotation") {
     if (it.annotations.any { it.annotationClass == annotation }) {
@@ -87,7 +89,7 @@ public fun Assertion.Builder<KParameter>.isTypeOf(
   } else {
     fail(
       description = "is actually type of",
-      actual = it.type.classifier
+      actual = it.type.classifier,
     )
   }
 }
