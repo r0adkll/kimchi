@@ -3,13 +3,11 @@
 package com.r0adkll.kimchi
 
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
-import com.r0adkll.kimchi.annotations.MergeComponent
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
 import java.io.OutputStream
 import kotlin.reflect.KClass
-import me.tatarka.inject.compiler.ksp.InjectProcessorProvider
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
@@ -92,4 +90,3 @@ fun compileKimchiWithTestSources(
     block = block,
   )
 }
-

@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.processors
 
 import com.r0adkll.kimchi.compileKimchiWithTestSources
@@ -7,17 +9,12 @@ import com.r0adkll.kimchi.hasAnnotation
 import com.r0adkll.kimchi.hasReceiverOf
 import com.r0adkll.kimchi.hasReturnType
 import com.r0adkll.kimchi.hasReturnTypeOf
-import com.r0adkll.kimchi.implements
-import com.r0adkll.kimchi.isTypeOf
 import com.r0adkll.kimchi.kotlinClass
 import com.r0adkll.kimchi.mergedTestComponent
-import com.r0adkll.kimchi.parameter
-import com.r0adkll.kimchi.testComponent
 import com.r0adkll.kimchi.testQualifier
 import com.r0adkll.kimchi.withFunction
 import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
-import kotlin.reflect.full.extensionReceiverParameter
 import me.tatarka.inject.annotations.Provides
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.CleanupMode
@@ -26,12 +23,6 @@ import strikt.api.expectThat
 import strikt.assertions.contains
 import strikt.assertions.first
 import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEmpty
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
-import strikt.assertions.isSameInstanceAs
-import strikt.assertions.map
 import strikt.assertions.withElementAt
 import strikt.assertions.withFirst
 
@@ -145,7 +136,7 @@ class ContributedBindingTest {
         class RealBinding : Binding, Binding2
       """.trimIndent(),
       workingDir = workingDir,
-      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR
+      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR,
     )
   }
 
@@ -164,7 +155,7 @@ class ContributedBindingTest {
         class FailedBinding
       """.trimIndent(),
       workingDir = workingDir,
-      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR
+      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR,
     )
   }
 
@@ -250,7 +241,7 @@ class ContributedBindingTest {
         class RealBinding2 : Binding
       """.trimIndent(),
       workingDir = workingDir,
-      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR
+      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR,
     )
   }
 

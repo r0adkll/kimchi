@@ -9,7 +9,6 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSName
 import com.google.devtools.ksp.validate
 import com.r0adkll.kimchi.ClassScanner
 import com.r0adkll.kimchi.annotations.ContributesBinding
