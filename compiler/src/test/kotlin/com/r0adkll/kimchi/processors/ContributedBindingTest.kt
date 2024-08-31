@@ -63,6 +63,25 @@ class ContributedBindingTest {
   }
 
   @Test
+  fun `contributed binding without @Inject fails`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import me.tatarka.inject.annotations.Inject
+        import com.r0adkll.kimchi.annotations.ContributesBinding
+
+        interface Binding
+
+        @ContributesBinding(TestScope::class)
+        class RealBinding(val param: Any) : Binding
+      """.trimIndent(),
+      workingDir = workingDir,
+      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR,
+    )
+  }
+
+  @Test
   fun `contributed binding object class gets added to a component`() {
     compileKimchiWithTestSources(
       """
