@@ -13,3 +13,5 @@ captures
 local.properties
 xcuserdata
 kotlin-js-store
+venv/
+site/

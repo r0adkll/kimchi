@@ -1,0 +1,19 @@
+site_name: Kimchi
+repo_name: kimchi
+repo_url: https://github.com/r0adkll/kimchi
+site_description: "Cross-module component and dependency merging library for kotlin-inject"
+site_author: r0adkll
+remote_branch: gh-pages
+
+extra_css:
+  - stylesheets/extra.css
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  palette:
+    primary: custom
+  font:
+    text: Suse
+    code: Jetbrains Mono
+
