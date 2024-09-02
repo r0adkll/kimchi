@@ -12,8 +12,56 @@ theme:
   name: material
   logo: assets/logo.svg
   palette:
-    primary: custom
+      # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: kimchi
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+      # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
   font:
     text: Suse
     code: Jetbrains Mono
 
+  features:
+    - content.code.copy
+    - content.code.select
+
+markdown_extensions:
+  - smarty
+  - codehilite:
+      guess_lang: false
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.emoji
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - admonition
+  - attr_list
+  - md_in_html
+
+nav:
+  - 'Introduction': index.md
+  - 'Tutorial': tutorial.md
+  - 'Installation': setup.md
+  - 'Components': components.md
+  - 'Bindings': bindings.md
+  - 'Modules': modules.md
+  - 'Circuit': circuit.md

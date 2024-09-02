@@ -1,5 +1,10 @@
-:root {
+[data-md-color-scheme="kimchi"] {
     --md-primary-fg-color:          #F04B37;
     --md-primary-fg-color--light:   #F04B37;
     --md-primary-fg-color--dark:    #D7322D;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-hue: 210;
+  --md-primary-fg-color:          #D7322D;
 }
