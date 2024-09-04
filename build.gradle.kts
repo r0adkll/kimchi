@@ -145,3 +145,8 @@ subprojects {
     }
   }
 }
+
+tasks.register<Copy>("bootstrap") {
+  from(file("scripts/pre-push"))
+  into(file(".git/hooks"))
+}

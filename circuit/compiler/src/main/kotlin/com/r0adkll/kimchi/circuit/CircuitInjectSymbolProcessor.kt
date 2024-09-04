@@ -18,8 +18,11 @@ import com.r0adkll.kimchi.circuit.util.ClassNames
 import com.r0adkll.kimchi.circuit.util.MemberNames
 import com.r0adkll.kimchi.circuit.util.addUiFactoryCreateStatement
 import com.r0adkll.kimchi.util.KimchiException
+import com.r0adkll.kimchi.util.applyIf
+import com.r0adkll.kimchi.util.buildConstructor
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.capitalized
+import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.directReturnTypeIs
 import com.r0adkll.kimchi.util.ksp.getAllSymbolsWithAnnotation
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
@@ -115,6 +118,19 @@ class CircuitInjectSymbolProcessor(
       throw KimchiException("Circuit Ui functions can only return 'Unit'", element)
     }
 
+    // These are the list of parameter types that can be resolved via a Ui.Factory, where
+    // any other parameters must be injected
+    val assistedParameterTypes = listOf(
+      annotation.screen,
+      ClassNames.Circuit.UiState,
+      ClassNames.Modifier,
+    )
+
+    // Filter out all the parameters that will need to be injected into the factory
+    val injectParameters = element.parameters.filter { param ->
+      assistedParameterTypes.none { param.implements(it) }
+    }
+
     return FileSpec.buildFile(packageName, classSimpleName) {
       addType(
         TypeSpec.interfaceBuilder(componentClassName)
@@ -141,6 +157,23 @@ class CircuitInjectSymbolProcessor(
           .addOriginatingKSFile(element.containingFile!!)
           .addAnnotation(Inject::class)
           .addSuperinterface(ClassNames.Circuit.UiFactory)
+          .applyIf(injectParameters.isNotEmpty()) {
+            primaryConstructor(
+              FunSpec.buildConstructor {
+                injectParameters.forEach { param ->
+                  addParameter(param.toParameterSpec())
+
+                  // Ensure that the params get set as properties and in the primary constructor
+                  addProperty(
+                    PropertySpec.builder(param.name!!.asString(), param.type.toTypeName())
+                      .initializer(param.name!!.asString())
+                      .addModifiers(KModifier.PRIVATE)
+                      .build(),
+                  )
+                }
+              },
+            )
+          }
           .addFunction(
             FunSpec.builder("create")
               .addModifiers(KModifier.OVERRIDE)

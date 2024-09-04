@@ -6,10 +6,16 @@ plugins {
   alias(libs.plugins.ksp)
 }
 
+kotlin {
+  compilerOptions {
+    freeCompilerArgs.add("-Xopt-in=org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi")
+  }
+}
+
 dependencies {
   implementation(libs.autoservice.annotations)
-  implementation(libs.kotlininject.runtime)
   implementation(libs.kotlin.ksp)
+  implementation(libs.kotlininject.runtime)
   implementation(libs.kotlinpoet)
   implementation(libs.kotlinpoet.ksp)
 
@@ -18,4 +24,17 @@ dependencies {
   implementation(projects.compilerUtils)
 
   ksp(libs.ksp.autoservice)
+
+  testImplementation(testFixtures(projects.compilerUtils))
+  testImplementation(libs.bundles.junit5)
+  testImplementation(libs.circuit.runtime)
+  testImplementation(libs.junit5.engine)
+  testImplementation(libs.kotlin.compile.testing.ksp)
+  testImplementation(libs.strikt.core)
+}
+
+tasks {
+  test {
+    useJUnitPlatform()
+  }
 }
