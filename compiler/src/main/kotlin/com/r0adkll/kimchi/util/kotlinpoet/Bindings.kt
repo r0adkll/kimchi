@@ -10,6 +10,7 @@ import com.r0adkll.kimchi.util.buildFun
 import com.r0adkll.kimchi.util.buildProperty
 import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
 import com.r0adkll.kimchi.util.ksp.findMapKey
+import com.r0adkll.kimchi.util.ksp.findQualifier
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.pairTypeOf
 import com.r0adkll.kimchi.util.toClassName
@@ -20,6 +21,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
+import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toClassName
 import kotlin.reflect.KClass
 import me.tatarka.inject.annotations.Inject
@@ -41,6 +43,8 @@ fun TypeSpec.Builder.addBinding(
   val boundType = boundClass.findBindingTypeFor(bindingAnnotationClass)
   val isObject = boundClass.classKind == ClassKind.OBJECT
   val isBindable = !isObject && boundClass.hasAnnotation(Inject::class)
+
+  boundClass.containingFile?.let { addOriginatingKSFile(it) }
 
   if (mapKey != null) {
     addMappingProvidesFunction(
@@ -76,16 +80,18 @@ private fun TypeSpec.Builder.addBindingReceiverProperty(
       name = "bind",
       type = boundType,
     ) {
-      if (boundClass.containingFile != null) {
-        addOriginatingKSFile(boundClass.containingFile!!)
-      }
-
       receiver(boundClass.toClassName())
 
       getter(
         FunSpec.getterBuilder()
           .addAnnotation(Provides::class)
           .apply {
+            // Add any qualifier that the bound class has
+            boundClass.findQualifier()?.let { qualifier ->
+              addAnnotation(qualifier.toAnnotationSpec())
+            }
+
+            // Add additional annotations passed
             additionalAnnotations.forEach {
               addAnnotation(it)
             }
@@ -107,6 +113,13 @@ private fun TypeSpec.Builder.addProvidesFunction(
       returns(returnType)
 
       addAnnotation(Provides::class)
+
+      // Add any qualifiers added to the bound class
+      boundClass.findQualifier()?.let { qualifier ->
+        addAnnotation(qualifier.toAnnotationSpec())
+      }
+
+      // Add passed additional annotations
       additionalAnnotations.forEach { annotation ->
         addAnnotation(annotation)
       }
@@ -127,25 +140,29 @@ private fun TypeSpec.Builder.addMappingProvidesFunction(
   isBindable: Boolean,
 ) {
   addFunction(
-    FunSpec.buildFun("provide${boundType.simpleName.asString()}$mapKey") {
+    FunSpec.buildFun("provide${boundType.simpleName.asString()}_$mapKey") {
       returns(pairTypeOf(mapKey::class.asTypeName(), boundType.toClassName()))
 
       addAnnotation(Provides::class)
       addAnnotation(IntoMap::class)
 
+      boundClass.findQualifier()?.let { qualifier ->
+        addAnnotation(qualifier.toAnnotationSpec())
+      }
+
       if (isBindable) {
         addParameter("value", boundClass.toClassName())
         if (mapKey is String) {
-          addStatement("return %S to value", mapKey)
+          addStatement("return (%S to value)", mapKey)
         } else {
-          addStatement("return %L to value", mapKey)
+          addStatement("return (%L to value)", mapKey)
         }
       } else {
         val valueTemplate = if (boundClass.classKind == ClassKind.OBJECT) "%T" else "%T()"
         if (mapKey is String) {
-          addStatement("return %S to $valueTemplate", mapKey, boundClass.toClassName())
+          addStatement("return (%S to $valueTemplate)", mapKey, boundClass.toClassName())
         } else {
-          addStatement("return %L to $valueTemplate", mapKey, boundClass.toClassName())
+          addStatement("return (%L to $valueTemplate)", mapKey, boundClass.toClassName())
         }
       }
     },

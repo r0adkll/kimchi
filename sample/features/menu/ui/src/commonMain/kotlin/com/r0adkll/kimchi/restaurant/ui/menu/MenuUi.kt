@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.restaurant.ui.menu
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -15,8 +16,8 @@ import com.r0adkll.kimchi.circuit.annotations.CircuitInject
 import com.r0adkll.kimchi.restaurant.common.scopes.UiScope
 import com.r0adkll.kimchi.restaurant.common.screens.MenuScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
-@CircuitInject(UiScope::class, MenuScreen::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@CircuitInject(MenuScreen::class, UiScope::class)
 @Composable
 fun MenuUi(
   state: MenuUiState,
@@ -31,12 +32,20 @@ fun MenuUi(
     modifier = modifier,
   ) {
     LazyColumn {
-      items(state.items) { menuItem ->
-        ListItem(
-          headlineContent = { Text(menuItem.title) },
-          supportingContent = { Text(menuItem.description) },
-          trailingContent = { Text(menuItem.price) },
-        )
+      state.menu.sections.forEach { section ->
+        stickyHeader {
+          ListItem(
+            headlineContent = { Text(section.name) },
+          )
+        }
+
+        items(section.items) { menuItem ->
+          ListItem(
+            headlineContent = { Text(menuItem.title) },
+            supportingContent = { Text(menuItem.description) },
+            trailingContent = { Text(menuItem.price) },
+          )
+        }
       }
     }
   }

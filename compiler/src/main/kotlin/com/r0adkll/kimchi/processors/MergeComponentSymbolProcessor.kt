@@ -16,17 +16,19 @@ import com.r0adkll.kimchi.annotations.ContributesMultibinding
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.annotations.MergeComponent
+import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.addIfNonNull
 import com.r0adkll.kimchi.util.buildClass
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.kotlinpoet.addBinding
-import com.r0adkll.kimchi.util.kotlinpoet.parameterSpecs
+import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
 import com.r0adkll.kimchi.util.ksp.findAnnotation
 import com.r0adkll.kimchi.util.ksp.getScope
 import com.r0adkll.kimchi.util.ksp.getSymbolsWithClassAnnotation
 import com.r0adkll.kimchi.util.ksp.isInterface
 import com.r0adkll.kimchi.util.toClassName
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -41,6 +43,7 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
 import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.Provides
 
 internal class MergeComponentSymbolProcessor(
   private val env: SymbolProcessorEnvironment,
@@ -118,7 +121,7 @@ internal class MergeComponentSymbolProcessor(
         "%T::class.create"
       }
       addFunction(
-        FunSpec.builder("create$classSimpleName")
+        FunSpec.builder("create${element.simpleName.asString()}")
           .receiver(element.toClassName().nestedClass("Companion"))
           .addParameters(constructorParameters)
           .addStatement(
@@ -147,7 +150,7 @@ internal class MergeComponentSymbolProcessor(
     val scope = element.findAnnotation(annotationKlass)
       ?.getScope()
       ?.toClassName()
-      ?: throw IllegalArgumentException("Unable to find scope for ${element.simpleName}")
+      ?: throw KimchiException("Unable to find scope for ${element.qualifiedName}", element)
 
     // Pull the contributed components for the scope
     val subcomponents = classScanner.findContributedClasses(
@@ -199,7 +202,24 @@ internal class MergeComponentSymbolProcessor(
       // from its defined factory class and function.
       val constructorParams = if (isSubcomponent) {
         val subcomponent = SubcomponentDeclaration(element)
-        subcomponent.factoryClass.factoryFunction.parameterSpecs()
+        subcomponent.factoryClass.factoryFunction.parameters.map {
+          // Add initializer property to make this parameter a `val` in the constructor
+          addProperty(
+            PropertySpec.builder(it.name!!.asString(), it.type.toTypeName())
+              .initializer(it.name!!.asString())
+              .build(),
+          )
+
+          it.toParameterSpec {
+            // Add an @get:Provides annotation to provide this parameter to the
+            // dependency graph
+            addAnnotation(
+              AnnotationSpec.builder(Provides::class)
+                .useSiteTarget(AnnotationSpec.UseSiteTarget.GET)
+                .build(),
+            )
+          }
+        }
       } else {
         getConstructorParameters(element)
       }

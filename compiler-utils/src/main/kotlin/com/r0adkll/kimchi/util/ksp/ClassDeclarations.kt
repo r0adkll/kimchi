@@ -1,0 +1,18 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
+package com.r0adkll.kimchi.util.ksp
+
+import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ksp.toClassName
+
+/**
+ * Return whether or not this [KSClassDeclaration] has a supertype of type [clazz] anywhere
+ * it its supertype hierarchy
+ */
+fun KSClassDeclaration.implements(className: ClassName): Boolean {
+  return getAllSuperTypes().any {
+    it.toClassName() == className
+  }
+}

@@ -9,6 +9,6 @@ object ComponentHolder {
     return components
       .filterIsInstance<T>()
       .firstOrNull()
-      ?: throw IllegalArgumentException("Unable to find a component for type '${T::class.simpleName}'")
+      ?: throw IllegalArgumentException("Unable to find a component for type '${T::class.qualifiedName}'")
   }
 }
