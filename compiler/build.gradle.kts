@@ -29,6 +29,7 @@ dependencies {
   testImplementation(libs.bundles.junit5)
   testImplementation(libs.junit5.engine)
   testImplementation(libs.strikt.core)
+  testImplementation(libs.kotlininject.ksp)
 }
 
 tasks {

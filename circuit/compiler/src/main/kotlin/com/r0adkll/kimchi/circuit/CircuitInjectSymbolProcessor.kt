@@ -24,7 +24,6 @@ import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.capitalized
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.directReturnTypeIs
-import com.r0adkll.kimchi.util.ksp.getAllSymbolsWithAnnotation
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.implements
 import com.r0adkll.kimchi.util.ksp.returnTypeIs
@@ -71,7 +70,7 @@ class CircuitInjectSymbolProcessor(
     val deferred = mutableListOf<KSAnnotated>()
 
     resolver
-      .getAllSymbolsWithAnnotation(CircuitInject::class)
+      .getSymbolsWithAnnotation(CircuitInject::class.qualifiedName!!)
       .forEach { element ->
         if (element.validate()) {
           when (element) {
