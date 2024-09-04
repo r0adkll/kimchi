@@ -6,11 +6,18 @@ plugins {
   kotlin("jvm")
   alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.compose.compiler)
+  alias(libs.plugins.ksp)
 }
 
 dependencies {
+  implementation(projects.annotations)
   implementation(projects.sample.shared)
+  implementation(libs.kotlininject.runtime)
+
   implementation(compose.desktop.currentOs)
+
+  ksp(projects.compiler)
+  ksp(libs.kotlininject.ksp)
 }
 
 compose.desktop {

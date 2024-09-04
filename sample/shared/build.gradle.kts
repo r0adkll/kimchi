@@ -42,10 +42,10 @@ kotlin {
       api(libs.circuit.overlay)
       api(libs.circuitx.gesturenav)
 
-      implementation(compose.ui)
-      implementation(compose.material)
-      implementation(compose.material3)
-      implementation(compose.materialIconsExtended)
+      api(compose.ui)
+      api(compose.material)
+      api(compose.material3)
+      api(compose.materialIconsExtended)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

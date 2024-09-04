@@ -8,6 +8,8 @@ plugins {
   alias(libs.plugins.kotlinMultiplatform)
   alias(libs.plugins.androidLibrary)
   alias(libs.plugins.kotlinParcelize)
+  alias(libs.plugins.compose.multiplatform)
+  alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -22,7 +24,7 @@ kotlin {
     iosSimulatorArm64(),
   ).forEach {
     it.binaries.framework {
-      baseName = "common"
+      baseName = "sample_common"
       isStatic = true
     }
   }
@@ -33,6 +35,9 @@ kotlin {
       api(projects.circuit.annotations)
 
       api(libs.circuit.runtime)
+      implementation(libs.circuit.foundation)
+      implementation(compose.ui)
+      implementation(libs.uuid)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

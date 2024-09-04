@@ -12,22 +12,22 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
 import com.r0adkll.kimchi.ClassScanner
 import com.r0adkll.kimchi.annotations.ContributesBinding
+import com.r0adkll.kimchi.annotations.ContributesBindingAnnotation
 import com.r0adkll.kimchi.annotations.ContributesMultibinding
+import com.r0adkll.kimchi.annotations.ContributesMultibindingAnnotation
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.annotations.ContributesTo
+import com.r0adkll.kimchi.annotations.ContributesToAnnotation
 import com.r0adkll.kimchi.annotations.MergeComponent
-import com.r0adkll.kimchi.util.KimchiException
+import com.r0adkll.kimchi.annotations.MergingAnnotation
 import com.r0adkll.kimchi.util.addIfNonNull
 import com.r0adkll.kimchi.util.buildClass
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.kotlinpoet.addBinding
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
-import com.r0adkll.kimchi.util.ksp.findAnnotation
-import com.r0adkll.kimchi.util.ksp.getScope
 import com.r0adkll.kimchi.util.ksp.getSymbolsWithClassAnnotation
 import com.r0adkll.kimchi.util.ksp.isInterface
-import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -146,32 +146,43 @@ internal class MergeComponentSymbolProcessor(
       ?: ClassName(packageName, classSimpleName)
     val isSubcomponent: Boolean = parent != null
 
-    val annotationKlass = if (isSubcomponent) ContributesSubcomponent::class else MergeComponent::class
-    val scope = element.findAnnotation(annotationKlass)
-      ?.getScope()
-      ?.toClassName()
-      ?: throw KimchiException("Unable to find scope for ${element.qualifiedName}", element)
+    val mergingAnnotation = MergingAnnotation.from(element)
 
     // Pull the contributed components for the scope
     val subcomponents = classScanner.findContributedClasses(
       annotation = ContributesSubcomponent::class,
-      scope = scope,
-    ).map { SubcomponentDeclaration(it) }
+      scope = mergingAnnotation.scope,
+    ).filterNot(mergingAnnotation::excludes)
+      .map { SubcomponentDeclaration(it) }
+
+    // Subcomponents can only replace other subcomponents so collect the set
+    // of replaced subcomponents so we can filter them later from being merged
+    // into the final component
+    val subcomponentsReplaced = subcomponents
+      .flatMap { it.annotation.replaces }
 
     val modules = classScanner.findContributedClasses(
       annotation = ContributesTo::class,
-      scope = scope,
-    )
+      scope = mergingAnnotation.scope,
+    ).filterNot(mergingAnnotation::excludes)
 
     val bindings = classScanner.findContributedClasses(
       annotation = ContributesBinding::class,
-      scope = scope,
-    )
+      scope = mergingAnnotation.scope,
+    ).filterNot(mergingAnnotation::excludes)
 
     val multiBindings = classScanner.findContributedClasses(
       annotation = ContributesMultibinding::class,
-      scope = scope,
-    )
+      scope = mergingAnnotation.scope,
+    ).filterNot(mergingAnnotation::excludes)
+
+    // Bindings and modules can replace each other so collect them all to use to filter
+    // each other out later in the final component
+    val replaced = sequence {
+      yieldAll(modules.map(ContributesToAnnotation::from))
+      yieldAll(bindings.map(ContributesBindingAnnotation::from))
+      yieldAll(multiBindings.map(ContributesMultibindingAnnotation::from))
+    }.flatMap { it.replaces }
 
     // Build the kotlin poet code
     return TypeSpec.buildClass(classSimpleName) {
@@ -262,37 +273,45 @@ internal class MergeComponentSymbolProcessor(
       addSuperinterfaces(
         modules
           .map { it.toClassName() }
+          .filterNot { replaced.contains(it) }
           .toList(),
       )
 
       // Generate all the contributed bindings
-      bindings.forEach { binding ->
-        addBinding(binding, ContributesBinding::class)
-      }
+      bindings
+        .filterNot { replaced.contains(it.toClassName()) }
+        .forEach { binding ->
+          addBinding(binding, ContributesBinding::class)
+        }
 
       // Generate all the contributed multi-bindings
-      multiBindings.forEach { multiBinding ->
-        addBinding(multiBinding, ContributesMultibinding::class)
-      }
+      multiBindings
+        .filterNot { replaced.contains(it.toClassName()) }
+        .forEach { multiBinding ->
+          addBinding(multiBinding, ContributesMultibinding::class)
+        }
 
       // Now iterate through all the subcomponents, and add them
-      subcomponents.forEach { subcomponent ->
-        // Add this subcomponents factory to the parent
-        addSuperinterface(subcomponent.factoryClass.toClassName())
+      subcomponents
+        .filterNot { subcomponentsReplaced.contains(it.toClassName()) }
+        .forEach { subcomponent ->
 
-        // Generate the factory creation function overload to generate this subcomponent
-        addFunction(subcomponent.createFactoryFunctionOverload(isGenerateCompanionExtensionsEnabled))
+          // Add this subcomponents factory to the parent
+          addSuperinterface(subcomponent.factoryClass.toClassName())
 
-        // Generate the Subcomponent
-        addType(
-          generateComponent(
-            classScanner = classScanner,
-            packageName = packageName,
-            element = subcomponent,
-            parent = className,
-          ),
-        )
-      }
+          // Generate the factory creation function overload to generate this subcomponent
+          addFunction(subcomponent.createFactoryFunctionOverload(isGenerateCompanionExtensionsEnabled))
+
+          // Generate the Subcomponent
+          addType(
+            generateComponent(
+              classScanner = classScanner,
+              packageName = packageName,
+              element = subcomponent,
+              parent = className,
+            ),
+          )
+        }
 
       // Every component should have an empty companion object
       addType(

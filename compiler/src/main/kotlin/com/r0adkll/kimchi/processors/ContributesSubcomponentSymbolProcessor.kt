@@ -9,9 +9,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.r0adkll.kimchi.HINT_SUBCOMPONENT_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
-import com.r0adkll.kimchi.util.ksp.findAnnotation
-import com.r0adkll.kimchi.util.ksp.getParentScope
-import com.r0adkll.kimchi.util.toClassName
+import com.r0adkll.kimchi.annotations.ContributesSubcomponentAnnotation
 import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
 
@@ -30,9 +28,6 @@ internal class ContributesSubcomponentSymbolProcessor(
     get() = ContributesSubcomponent::class
 
   override fun getScope(element: KSClassDeclaration): ClassName {
-    return element.findAnnotation(ContributesSubcomponent::class)
-      ?.getParentScope()
-      ?.toClassName()
-      ?: throw IllegalArgumentException("Unable to find parentScope for ${element.simpleName}")
+    return ContributesSubcomponentAnnotation.from(element).parentScope
   }
 }
