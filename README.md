@@ -1,4 +1,4 @@
-![](.github/art/kimchi.svg)
+![](.github/art/banner.png)
 
 # Kimchi
 
