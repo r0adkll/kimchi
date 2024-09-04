@@ -15,28 +15,28 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import kotlin.reflect.KClass
 
-fun KSAnnotated.hasAnnotation(kclass: KClass<*>): Boolean {
+public fun KSAnnotated.hasAnnotation(kclass: KClass<*>): Boolean {
   return hasAnnotation(kclass.asClassName())
 }
 
-fun KSAnnotated.hasAnnotation(className: ClassName): Boolean {
+public fun KSAnnotated.hasAnnotation(className: ClassName): Boolean {
   return hasAnnotation(className.packageName, className.simpleName)
 }
 
-fun KSAnnotated.hasAnnotation(packageName: String, simpleName: String): Boolean {
+public fun KSAnnotated.hasAnnotation(packageName: String, simpleName: String): Boolean {
   return annotations.any { it.hasName(packageName, simpleName) }
 }
 
-fun KSAnnotated.findAnnotation(kclass: KClass<*>): KSAnnotation? {
+public fun KSAnnotated.findAnnotation(kclass: KClass<*>): KSAnnotation? {
   val className = kclass.asClassName()
   return findAnnotation(className.packageName, className.simpleName)
 }
 
-fun KSAnnotated.findAnnotation(packageName: String, simpleName: String): KSAnnotation? {
+public fun KSAnnotated.findAnnotation(packageName: String, simpleName: String): KSAnnotation? {
   return annotations.firstOrNull { it.hasName(packageName, simpleName) }
 }
 
-fun KSAnnotation.isAnnotation(kclass: KClass<*>): Boolean {
+public fun KSAnnotation.isAnnotation(kclass: KClass<*>): Boolean {
   val className = kclass.asClassName()
   return hasName(className.packageName, className.simpleName)
 }
@@ -48,7 +48,7 @@ private fun KSAnnotation.hasName(packageName: String, simpleName: String): Boole
   return declaration.packageName.asString() == packageName
 }
 
-fun KSTypeAlias.findActualType(): KSClassDeclaration {
+public fun KSTypeAlias.findActualType(): KSClassDeclaration {
   val resolvedType = this.type.resolve().declaration
   return if (resolvedType is KSTypeAlias) {
     resolvedType.findActualType()
@@ -57,7 +57,7 @@ fun KSTypeAlias.findActualType(): KSClassDeclaration {
   }
 }
 
-fun KSTypeReference.findActualType(): KSClassDeclaration {
+public fun KSTypeReference.findActualType(): KSClassDeclaration {
   val resolvedType = this.resolve().declaration
   return if (resolvedType is KSTypeAlias) {
     resolvedType.findActualType()
@@ -66,15 +66,15 @@ fun KSTypeReference.findActualType(): KSClassDeclaration {
   }
 }
 
-val KSClassDeclaration.isInterface: Boolean
+public val KSClassDeclaration.isInterface: Boolean
   get() = this.classKind == ClassKind.INTERFACE
 
-fun Resolver.getSymbolsWithClassAnnotation(kclass: KClass<*>): Sequence<KSClassDeclaration> {
+public fun Resolver.getSymbolsWithClassAnnotation(kclass: KClass<*>): Sequence<KSClassDeclaration> {
   val className = kclass.asClassName()
   return getSymbolsWithClassAnnotation(className.packageName, className.simpleName)
 }
 
-fun Resolver.getAllSymbolsWithAnnotation(kclass: KClass<*>): Sequence<KSDeclaration> {
+public fun Resolver.getAllSymbolsWithAnnotation(kclass: KClass<*>): Sequence<KSDeclaration> {
   val className = kclass.asClassName()
   return getAllSymbolsWithAnnotation(className.packageName, className.simpleName)
 }
@@ -83,7 +83,10 @@ fun Resolver.getAllSymbolsWithAnnotation(kclass: KClass<*>): Sequence<KSDeclarat
  * A 'fast' version of [Resolver.getSymbolsWithAnnotation]. We only care about class annotations so we can skip a lot
  * of the tree.
  */
-fun Resolver.getSymbolsWithClassAnnotation(packageName: String, simpleName: String): Sequence<KSClassDeclaration> {
+public fun Resolver.getSymbolsWithClassAnnotation(
+  packageName: String,
+  simpleName: String,
+): Sequence<KSClassDeclaration> {
   suspend fun SequenceScope<KSClassDeclaration>.visit(declarations: Sequence<KSDeclaration>) {
     for (declaration in declarations) {
       if (declaration is KSClassDeclaration) {
@@ -105,7 +108,7 @@ fun Resolver.getSymbolsWithClassAnnotation(packageName: String, simpleName: Stri
  * A 'fast' version of [Resolver.getSymbolsWithAnnotation]. We only care about class annotations so we can skip a lot
  * of the tree.
  */
-fun Resolver.getAllSymbolsWithAnnotation(packageName: String, simpleName: String): Sequence<KSDeclaration> {
+public fun Resolver.getAllSymbolsWithAnnotation(packageName: String, simpleName: String): Sequence<KSDeclaration> {
   suspend fun SequenceScope<KSDeclaration>.visit(declarations: Sequence<KSDeclaration>) {
     for (declaration in declarations) {
       if (declaration is KSFunctionDeclaration) {

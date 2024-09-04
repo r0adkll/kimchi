@@ -200,6 +200,11 @@ abstract class AppComponent
 
 In a perfect world this feature shouldn't be needed. However, due to legacy setups, poor modularization, and other constraints of modern day software development, applications might need to use it.
 
+## Extending Kimchi
+
+Every project is unique in how they setup their DI patterns and can often come with repetitive boilerplate for these patterns. Kimchi allows you to extend its capabilities by leveraging KSP's multi-round processing to generate your own boilerplate with Kimchi annotations.
+Checkout the [:circuit](circuit/README.md) subproject for an example of this.
+
 ## Setup
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.r0adkll.kimchi/kimchi-compiler.svg)](https://search.maven.org/search?q=g:com.r0adkll.kimchi)

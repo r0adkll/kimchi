@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  * by the merging component generator
  */
 internal abstract class HintSymbolProcessor(
-  private val env: SymbolProcessorEnvironment,
+  protected val env: SymbolProcessorEnvironment,
   private val hintPackageName: String,
 ) : SymbolProcessor {
 

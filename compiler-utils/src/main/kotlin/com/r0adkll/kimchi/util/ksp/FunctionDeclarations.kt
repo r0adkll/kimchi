@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
  * Search through all of the [KSFunctionDeclaration.parameters] for one whos type implements the
  * passed [className]
  */
-fun KSFunctionDeclaration.findParameterThatImplements(className: ClassName): KSValueParameter? {
+public fun KSFunctionDeclaration.findParameterThatImplements(className: ClassName): KSValueParameter? {
   return parameters.find { parameter ->
     val classDecl = parameter.type.resolve().declaration as? KSClassDeclaration
     if (classDecl != null) {
@@ -27,28 +27,28 @@ fun KSFunctionDeclaration.findParameterThatImplements(className: ClassName): KSV
   }
 }
 
-fun KSFunctionDeclaration.findParameterThatIs(className: ClassName): KSValueParameter? {
+public fun KSFunctionDeclaration.findParameterThatIs(className: ClassName): KSValueParameter? {
   return parameters.find { parameter ->
     parameter.type.resolve().toClassName() == className
   }
 }
 
-fun KSFunctionDeclaration.returnTypeIs(clazz: KClass<*>): Boolean {
+public fun KSFunctionDeclaration.returnTypeIs(clazz: KClass<*>): Boolean {
   return returnTypeIs(clazz.asClassName())
 }
 
-fun KSFunctionDeclaration.returnTypeIs(className: ClassName): Boolean {
+public fun KSFunctionDeclaration.returnTypeIs(className: ClassName): Boolean {
   return returnType
     ?.findActualType()
     ?.getAllSuperTypes()
     ?.any { it.declaration.toClassName() == className } == true
 }
 
-fun KSFunctionDeclaration.directReturnTypeIs(clazz: KClass<*>): Boolean {
+public fun KSFunctionDeclaration.directReturnTypeIs(clazz: KClass<*>): Boolean {
   return directReturnTypeIs(clazz.asClassName())
 }
 
-fun KSFunctionDeclaration.directReturnTypeIs(className: ClassName): Boolean {
+public fun KSFunctionDeclaration.directReturnTypeIs(className: ClassName): Boolean {
   return returnType
     ?.findActualType()
     ?.toClassName() == className
