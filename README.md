@@ -1,6 +1,6 @@
-# Kimchi
-
 ![](.github/art/kimchi.svg)
+
+# Kimchi
 
 **K** - Kotlin
 **i** - Inject
