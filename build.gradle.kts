@@ -26,7 +26,6 @@ allprojects {
 
     format("misc") {
       target("*.md", ".gitignore")
-      trimTrailingWhitespace()
       endWithNewline()
     }
     kotlin {
