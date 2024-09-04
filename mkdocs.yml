@@ -33,6 +33,7 @@ theme:
   features:
     - content.code.copy
     - content.code.select
+    - content.code.annotate
 
 markdown_extensions:
   - smarty
@@ -52,6 +53,7 @@ markdown_extensions:
   - pymdownx.emoji
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.details
   - tables
   - admonition
   - attr_list

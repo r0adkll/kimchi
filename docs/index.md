@@ -15,6 +15,10 @@ To give a simple high-level overview of how to achieve this with Kimchi are thes
 2. Create a `@MergeComponent` annotated component scoped with your marker to merge your elements
 3. Contribute dependencies to this `Scope` marker
 
+## Installation
+
+Check out the docs on the [Installation](setup.md) page on how to start integrating kimchi into your project
+
 ## Example
 
 Give give a more concrete example of these steps lets take this simple example
@@ -70,7 +74,7 @@ class MyApplication : Application() {
 }
 ```
 ### Dive into more
-This is of course just the most basic example of how to use Kimchi and only scratches the surface with what you can do and how you can build your dependency injection graph across your project. Get started with a more detailed guide and examples [here]()!
+This is of course just the most basic example of how to use Kimchi and only scratches the surface with what you can do and how you can build your dependency injection graph across your project. Get started with a more detailed guide and examples [in the tutorial](tutorial.md)!
 
 ## License
 
