@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.generators
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -87,7 +89,6 @@ class MergeComponentGenerator : Generator {
       )
     } isAggregating true
   }
-
 
   private fun FileSpec.Builder.generateComponent(
     context: MergeContext,
@@ -180,7 +181,9 @@ class MergeComponentGenerator : Generator {
         ParameterSpec.builder("parent", parent)
           .addAnnotation(Component::class)
           .build()
-      } else null
+      } else {
+        null
+      }
 
       primaryConstructor(
         FunSpec.constructorBuilder()
@@ -221,7 +224,8 @@ class MergeComponentGenerator : Generator {
             .returns(subcomponentClassName)
             .addParameters(subcomponentConstructorParams)
             .addStatement(
-              "return %T.create(${subcomponentConstructorParams.joinToString { "%L" }}${if (subcomponentConstructorParams.isNotEmpty()) ", " else ""}this)",
+              "return %T.create(${subcomponentConstructorParams.joinToString { "%L" }}" +
+                "${if (subcomponentConstructorParams.isNotEmpty()) ", " else ""}this)",
               subcomponentClassName,
               *subcomponentConstructorParams.map { it.name }.toTypedArray(),
             )

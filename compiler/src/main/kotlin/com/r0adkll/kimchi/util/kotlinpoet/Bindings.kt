@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util.kotlinpoet
 
 import com.google.devtools.ksp.symbol.ClassKind
@@ -125,7 +127,7 @@ private fun TypeSpec.Builder.addMappingProvidesFunction(
   isBindable: Boolean,
 ) {
   addFunction(
-    FunSpec.buildFun("provide${boundType.simpleName.asString()}${mapKey}") {
+    FunSpec.buildFun("provide${boundType.simpleName.asString()}$mapKey") {
       returns(pairTypeOf(mapKey::class.asTypeName(), boundType.toClassName()))
 
       addAnnotation(Provides::class)
@@ -146,7 +148,7 @@ private fun TypeSpec.Builder.addMappingProvidesFunction(
           addStatement("return %L to $valueTemplate", mapKey, boundClass.toClassName())
         }
       }
-    }
+    },
   )
 }
 

@@ -1,7 +1,7 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.generators
 
-import com.google.devtools.ksp.closestClassDeclaration
-import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -10,12 +10,9 @@ import com.r0adkll.kimchi.MergeContext
 import com.r0adkll.kimchi.annotations.CircuitInject
 import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.util.ClassNames
-import com.r0adkll.kimchi.util.MemberNames
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.kotlinpoet.addUiFactoryCreateStatement
 import com.r0adkll.kimchi.util.ksp.findAnnotation
-import com.r0adkll.kimchi.util.ksp.findParameterThatImplements
-import com.r0adkll.kimchi.util.ksp.findParameterThatIs
 import com.r0adkll.kimchi.util.ksp.getAllSymbolsWithAnnotation
 import com.r0adkll.kimchi.util.ksp.getScope
 import com.r0adkll.kimchi.util.ksp.getScreen
@@ -96,7 +93,6 @@ class CircuitInjectGenerator : Generator {
       ?: throw IllegalStateException("Unable to find screen for injected UI")
 
     return FileSpec.buildFile(packageName, classSimpleName) {
-
       addType(
         TypeSpec.interfaceBuilder(componentClassName)
           .addAnnotation(
@@ -105,7 +101,7 @@ class CircuitInjectGenerator : Generator {
               .build(),
           )
           .addFunction(
-            FunSpec.builder("bind${classSimpleName}")
+            FunSpec.builder("bind$classSimpleName")
               .addAnnotation(IntoSet::class)
               .addAnnotation(Provides::class)
               .addParameter("factory", className)
@@ -147,7 +143,6 @@ class CircuitInjectGenerator : Generator {
           )
           .build(),
       )
-
     } isAggregating false
   }
 
@@ -207,13 +202,16 @@ class CircuitInjectGenerator : Generator {
           val parameterTypeClassName = parameter.type.resolve().declaration.toClassName()
           if (parameterTypeClassName in allowedAssistedTypes) {
             ParameterSpec(parameter.name!!.asString(), parameterTypeClassName)
-          } else null
-        } else null
+          } else {
+            null
+          }
+        } else {
+          null
+        }
       }
       ?: emptyList()
 
     return FileSpec.buildFile(packageName, classSimpleName) {
-
       addType(
         TypeSpec.interfaceBuilder(componentClassName)
           .addAnnotation(
@@ -222,7 +220,7 @@ class CircuitInjectGenerator : Generator {
               .build(),
           )
           .addFunction(
-            FunSpec.builder("bind${classSimpleName}")
+            FunSpec.builder("bind$classSimpleName")
               .addAnnotation(IntoSet::class)
               .addAnnotation(Provides::class)
               .addParameter("factory", className)
@@ -279,7 +277,6 @@ class CircuitInjectGenerator : Generator {
           )
           .build(),
       )
-
     } isAggregating false
   }
 }

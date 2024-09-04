@@ -1,3 +1,5 @@
+// Copyright (C) 2024 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 plugins {
   alias(libs.plugins.androidLibrary)
   alias(libs.plugins.kotlinMultiplatform)
@@ -5,8 +7,8 @@ plugins {
 }
 
 kotlin {
-  androidTarget { publishLibraryVariants("release") }
   jvm()
+  androidTarget { publishLibraryVariants("release") }
 
   applyDefaultHierarchyTemplate()
 
@@ -18,7 +20,7 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
-      //put your multiplatform dependencies here
+      // put your multiplatform dependencies here
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)
