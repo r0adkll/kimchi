@@ -1,17 +1,21 @@
 // Copyright (C) 2024 r0adkll
 // SPDX-License-Identifier: Apache-2.0
-package com.r0adkll.kimchi.generators
+package com.r0adkll.kimchi.circuit
 
+import com.google.auto.service.AutoService
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.validate
-import com.r0adkll.kimchi.MergeContext
-import com.r0adkll.kimchi.annotations.CircuitInject
 import com.r0adkll.kimchi.annotations.ContributesTo
-import com.r0adkll.kimchi.util.ClassNames
+import com.r0adkll.kimchi.circuit.annotations.CircuitInject
+import com.r0adkll.kimchi.circuit.util.ClassNames
+import com.r0adkll.kimchi.circuit.util.kotlinpoet.addUiFactoryCreateStatement
 import com.r0adkll.kimchi.util.buildFile
-import com.r0adkll.kimchi.util.kotlinpoet.addUiFactoryCreateStatement
 import com.r0adkll.kimchi.util.ksp.findAnnotation
 import com.r0adkll.kimchi.util.ksp.getAllSymbolsWithAnnotation
 import com.r0adkll.kimchi.util.ksp.getScope
@@ -30,45 +34,58 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeSpec
-import kotlin.reflect.KClass
+import com.squareup.kotlinpoet.ksp.kspDependencies
+import com.squareup.kotlinpoet.ksp.writeTo
 import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
 
-class CircuitInjectGenerator : Generator {
+/**
+ * Generate the necessary kotlin-inject boilerplate needed to wire up Circuit Ui composables
+ * and Presenter implementations to be consumed upstream in a Circuit.Builder
+ *
+ * TODO: More kdoc here on this symbol processor
+ */
+class CircuitInjectSymbolProcessor(
+  private val env: SymbolProcessorEnvironment,
+) : SymbolProcessor {
 
-  override val annotation: KClass<*>
-    get() = CircuitInject::class
-
-  override fun generate(context: MergeContext, element: KSDeclaration): GeneratedSpec {
-    return when (element) {
-      is KSFunctionDeclaration -> generateUiFactory(context, element)
-      is KSClassDeclaration -> generatePresenterFactory(context, element)
-      else -> throw IllegalStateException("Unable to process declaration")
+  @AutoService(SymbolProcessorProvider::class)
+  class Provider : SymbolProcessorProvider {
+    override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+      return CircuitInjectSymbolProcessor(environment)
     }
   }
 
-  override fun generate(context: MergeContext): List<GeneratedSpec> {
-    return context.resolver
+  override fun process(resolver: Resolver): List<KSAnnotated> {
+    val deferred = mutableListOf<KSAnnotated>()
+
+    resolver
       .getAllSymbolsWithAnnotation(CircuitInject::class)
-      .mapNotNull { element ->
+      .forEach { element ->
         if (element.validate()) {
-          generate(context, element)
           when (element) {
-            is KSFunctionDeclaration -> generateUiFactory(context, element)
-            is KSClassDeclaration -> generatePresenterFactory(context, element)
+            is KSFunctionDeclaration -> generateUiFactory(element)
+            is KSClassDeclaration -> generatePresenterFactory(element)
             else -> null
+          }?.let { fileSpec ->
+            fileSpec.writeTo(
+              codeGenerator = env.codeGenerator,
+              dependencies = fileSpec.kspDependencies(aggregating = false),
+            )
           }
         } else {
-          context.defer(element, annotation)
-          null
+          deferred += element
         }
       }
-      .toList()
+
+    return deferred
   }
 
-  private fun generateUiFactory(context: MergeContext, element: KSFunctionDeclaration): GeneratedSpec {
+  private fun generateUiFactory(
+    element: KSFunctionDeclaration,
+  ): FileSpec {
     val packageName = element.packageName.asString()
     val classSimpleName = "${element.simpleName.asString()}UiFactory"
     val className = ClassName(packageName, classSimpleName)
@@ -77,8 +94,8 @@ class CircuitInjectGenerator : Generator {
     // Verify that this element has @Composable annotation @ first param is state
     // and it
     if (!element.hasAnnotation(ClassNames.Composable)) {
-      context.logger.error("Missing @Composable on this function", element)
-      throw IllegalStateException("@Circuit inject is only usable on composable functions ir Presenter classes")
+      env.logger.error("Missing @Composable on this function", element)
+      throw IllegalStateException("@CircuitInject is only usable on composable functions or Presenter implementations")
     }
 
     // Get the targeted scope and screen
@@ -143,10 +160,10 @@ class CircuitInjectGenerator : Generator {
           )
           .build(),
       )
-    } isAggregating false
+    }
   }
 
-  private fun generatePresenterFactory(context: MergeContext, element: KSClassDeclaration): GeneratedSpec {
+  private fun generatePresenterFactory(element: KSClassDeclaration): FileSpec {
     val packageName = element.packageName.asString()
     val classSimpleName = "${element.simpleName.asString()}Factory"
     val className = ClassName(packageName, classSimpleName)
@@ -155,8 +172,8 @@ class CircuitInjectGenerator : Generator {
     // Verify that this element has @Composable annotation @ first param is state
     // and it
     if (!element.hasAnnotation(Inject::class)) {
-      context.logger.error("Missing @Inject on this class", element)
-      throw IllegalStateException("@CircuitInject on presenter classes that are injectable")
+      env.logger.error("Missing @Inject on this class", element)
+      throw IllegalStateException("@CircuitInject on presenter classes must have an @Inject annotation")
     }
 
     // FIXME: Outdated
@@ -277,6 +294,6 @@ class CircuitInjectGenerator : Generator {
           )
           .build(),
       )
-    } isAggregating false
+    }
   }
 }
