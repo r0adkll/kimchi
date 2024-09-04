@@ -22,6 +22,10 @@ TODO: Use https://github.com/ffurrer2/extract-release-notes when crafting a rele
 ### Other Notes & Contributions
 
 
+## [0.2.0] - 2024-*
+
+- _TODO_
+
 ## [0.1.0] - 2024-08-14
 
 ### Added
