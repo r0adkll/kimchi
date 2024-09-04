@@ -9,4 +9,9 @@ import kotlin.reflect.KClass
 annotation class ContributesSubcomponent(
   val scope: KClass<*>,
   val parentScope: KClass<*>,
-)
+) {
+
+  @MustBeDocumented
+  @Retention(AnnotationRetention.SOURCE)
+  annotation class Factory
+}
