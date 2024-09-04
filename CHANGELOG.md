@@ -21,9 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+## [0.2.0] - 2024-08-24
+
 ### Added
 
-- [Circuit] Added ability to inject additional elements into Ui composable functions - #30
+- [Circuit] Added ability to inject additional elements into Ui composable functions - [https://github.com/r0adkll/kimchi/pull/30]
+
+### Fixed
+
+- Fixed `rank` ordering when contributing multiple bindings of the same type - [https://github.com/r0adkll/kimchi/pull/34]
 
 ## [0.1.1] - 2024-08-24
 
