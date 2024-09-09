@@ -10,8 +10,13 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.r0adkll.kimchi.HINT_SUBCOMPONENT_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.annotations.ContributesSubcomponentAnnotation
+import com.r0adkll.kimchi.util.KimchiException
+import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
+import com.r0adkll.kimchi.util.ksp.hasAnnotation
+import com.r0adkll.kimchi.util.ksp.isInterface
 import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
+import me.tatarka.inject.annotations.Component
 
 internal class ContributesSubcomponentSymbolProcessor(
   env: SymbolProcessorEnvironment,
@@ -29,5 +34,27 @@ internal class ContributesSubcomponentSymbolProcessor(
 
   override fun getScope(element: KSClassDeclaration): ClassName {
     return ContributesSubcomponentAnnotation.from(element).parentScope
+  }
+
+  override fun validate(element: KSClassDeclaration) {
+    if (!element.isInterface) {
+      throw KimchiException(
+        "@ContributesSubcomponent can only be applied to an interface",
+        element,
+      )
+    }
+
+    val subcomponentFactoryHasExplicitParent = SubcomponentDeclaration(element)
+      .factoryClass
+      .factoryFunction
+      .parameters
+      .any { it.hasAnnotation(Component::class) }
+
+    if (subcomponentFactoryHasExplicitParent) {
+      throw KimchiException(
+        "@ContributesSubcomponent.Factory functions cannot explicitly define a @Component parent",
+        element,
+      )
+    }
   }
 }

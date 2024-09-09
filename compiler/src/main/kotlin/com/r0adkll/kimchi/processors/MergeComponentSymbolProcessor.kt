@@ -28,7 +28,6 @@ import com.r0adkll.kimchi.util.kotlinpoet.addBinding
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
 import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
 import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
-import com.r0adkll.kimchi.util.ksp.findInjectScope
 import com.r0adkll.kimchi.util.ksp.findQualifier
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.isInterface
@@ -204,11 +203,6 @@ internal class MergeComponentSymbolProcessor(
 
       addModifiers(KModifier.ABSTRACT)
 
-      // Pass along any scope that was attached to the component
-      element.findInjectScope()?.let { scopeAnnotation ->
-        addAnnotation(scopeAnnotation.toAnnotationSpec())
-      }
-
       // Mark our generated class as the component to be generated
       addAnnotation(Component::class)
 
@@ -361,16 +355,11 @@ internal class MergeComponentSymbolProcessor(
   private fun getConstructorParameters(element: KSClassDeclaration): List<ParameterSpec> {
     return element.primaryConstructor?.let { primaryConstructor ->
       primaryConstructor.parameters.map { param ->
+        // [#43] Do not pass on any annotations from the original constructor since kotlin-inject handles inheritance
         ParameterSpec.builder(
           name = param.name!!.asString(),
           type = param.type.toTypeName(),
-        )
-          .addAnnotations(
-            param.annotations
-              .map { annotation -> annotation.toAnnotationSpec() }
-              .toList(),
-          )
-          .build()
+        ).build()
       }
     } ?: emptyList()
   }

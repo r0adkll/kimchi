@@ -58,6 +58,17 @@ val JvmCompilationResult.testComponent: KClass<*>
 val JvmCompilationResult.mergedTestComponent: KClass<*>
   get() = kotlinClass("kimchi.merge.kimchi.MergedTestComponent")
 
+@Language("kotlin")
+val SingleIn = """
+  package kimchi
+  import kotlin.reflect.KClass
+  @me.tatarka.inject.annotations.Scope
+  annotation class SingleIn(val scope: KClass<*>)
+""".trimIndent()
+
+val JvmCompilationResult.singleIn: KClass<*>
+  get() = kotlinClass("kimchi.SingleIn")
+
 /**
  * Add source files here to include in every compiler test
  */
@@ -66,6 +77,7 @@ val commonTestSources = arrayOf(
   TestParentScope,
   TestQualifier,
   TestComponent,
+  SingleIn,
 )
 
 /**
