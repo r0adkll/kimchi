@@ -139,7 +139,13 @@ val contributesSubcomponentHintTest = HintTest(
       scope = TestScope::class,
       parentScope = TestParentScope::class,
     )
-    interface TestSubcomponent
+    interface TestSubcomponent {
+
+      @ContributesSubcomponent.Factory
+      interface Factory {
+        fun create(): TestSubcomponent
+      }
+    }
   """.trimIndent(),
   KotlinCompilation.ExitCode.OK,
   { classLoader.loadClass("kimchi.TestSubcomponent") },
