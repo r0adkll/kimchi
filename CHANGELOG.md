@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+## [0.3.0] - 2024-09-09
+
 ### Fixed
 
 - Fixed issue where @ContributesBinding elements with constructor injections and no @Inject annotation
