@@ -129,7 +129,7 @@ internal class MergeComponentSymbolProcessor(
         "%T::class.create"
       }
 
-      // Creating extension functions against a classes companion object requires it to be explicitly defined
+      // Creating extension functions against a class companion object requires it to be explicitly defined
       // on the targeted class, even if its empty. If we detect that a class does not have one explicitly defined
       // then we should just generated the function against the annotated classes KClass definition
       val receiver = if (element.hasCompanionObject()) {
