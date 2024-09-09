@@ -17,11 +17,13 @@ public class InjectAppComponent(
   application: Application,
 ) : AppComponent(application), ScopedComponent // { …
 
-public fun KClass<MergedAndroidAppComponent>.create(application: Application):
-  MergedAndroidAppComponent = InjectMergedAndroidAppComponent(application)
+public fun KClass<AppComponent>.create(application: Application):
+  AppComponent = InjectAppComponent(application)
 ```
 
 ## **`@MergeComponent`**
+
+### Using abstract classes
 
 Kimchi extends this pattern with the `@MergeComponent` annotation where it will generate that abstract class for you, complete with merged elements, that will then get picked up by kotlin-inject and generate the above. In practice it should look something like this:
 
@@ -34,7 +36,7 @@ abstract class AppComponent(
 
 Under the hook this will generate a merged abstract implementation of our component, merging in all the contributed bindings, multi-bindings, modules and subcomponents to the scope that we specify. Here is an example of what that can look like:
 
-```kotlin hl_lines
+```kotlin
 @Component
 abstract class MergedAppComponent(
   application: Application,
@@ -52,5 +54,40 @@ fun AppComponent.Companion.createAppComponent(): MergedAppComponent
 Which in turn outputs
 
 ```kotlin
+public class InjectMergedAppComponent(
+  application: Application,
+) : MergedAppComponent(application), ScopedComponent // { …
 
+public fun KClass<MergedAppComponent>.create(application: Application):
+  MergedAppComponent = InjectMergedAppComponent(application)
 ```
+
+### Using interfaces
+
+Kimchi also supports using `interface` classes for merged components with the caveat that you can't pass anything to the graph.
+
+```kotlin
+@MergeComponent(AppScope::class)
+interface AppComponent // { …
+```
+
+Which generates
+
+```kotlin
+@Component
+abstract class MergedAppComponent : AppComponent, ContributedComponentInterface {
+
+  // Contributed binding
+  fun RealMenuRepository.bind: MenuRepository
+    @Provides get() = this
+}
+
+fun AppComponent.Companion.createAppComponent(): MergedAppComponent
+  = MergedAppComponent::class.create()
+```
+
+and you can guess how the generated `Inject*` component will look like.
+
+## **`@MergeSubcomponent`**
+
+
