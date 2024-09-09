@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed issue where @ContributesBinding elements with constructor injections and no @Inject annotation
+- Fixed annotations passed to merged implementations clashing with kotlin-inject generation. - [https://github.com/r0adkll/kimchi/pull/43]
 
 ## [0.2.0] - 2024-08-24
 
