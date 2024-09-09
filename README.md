@@ -15,6 +15,16 @@ Getting started is easy! Just create a component abstract class or interface ann
 abstract class AppComponent
 ```
 
+Kimchi generates a helpful extension function for easily creating the underlying merged component.
+
+```kotlin
+AppComponent::class.createAppComponent()
+```
+or if you define a `companion object` in your component
+```kotlin
+AppComponent.createAppComponent()
+```
+
 Now we have a component ready to collect contributions on the scope `AppScope`
 Next, start contributing modules and bindings.
 

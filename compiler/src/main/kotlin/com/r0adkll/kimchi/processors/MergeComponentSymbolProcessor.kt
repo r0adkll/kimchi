@@ -30,6 +30,7 @@ import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
 import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
 import com.r0adkll.kimchi.util.ksp.findQualifier
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
+import com.r0adkll.kimchi.util.ksp.hasCompanionObject
 import com.r0adkll.kimchi.util.ksp.isInterface
 import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -38,14 +39,17 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.kspDependencies
 import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
+import kotlin.reflect.KClass
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 
@@ -124,9 +128,20 @@ internal class MergeComponentSymbolProcessor(
       } else {
         "%T::class.create"
       }
+
+      // Creating extension functions against a class companion object requires it to be explicitly defined
+      // on the targeted class, even if its empty. If we detect that a class does not have one explicitly defined
+      // then we should just generated the function against the annotated classes KClass definition
+      val receiver = if (element.hasCompanionObject()) {
+        element.toClassName().nestedClass("Companion")
+      } else {
+        KClass::class.asClassName()
+          .parameterizedBy(element.toClassName())
+      }
+
       addFunction(
         FunSpec.builder("create${element.simpleName.asString()}")
-          .receiver(element.toClassName().nestedClass("Companion"))
+          .receiver(receiver)
           .addParameters(constructorParameters)
           .addStatement(
             "return $createFunction(${constructorParameters.joinToString { "%L" }})",
