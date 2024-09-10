@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util
 
+import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -53,6 +55,10 @@ public fun FunSpec.Companion.buildConstructor(
  */
 public fun KSDeclaration.toClassName(): ClassName = when (this) {
   is KSClassDeclaration -> toClassName()
+  is KSFunctionDeclaration -> {
+    closestClassDeclaration()?.toClassName()?.nestedClass(this.simpleName.asString())
+      ?: ClassName(packageName.asString(), simpleName.asString())
+  }
   else -> ClassName.bestGuess(qualifiedName!!.asString())
 }
 
