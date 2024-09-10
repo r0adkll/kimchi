@@ -3,12 +3,13 @@
 package com.r0adkll.kimchi.circuit.util
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.r0adkll.kimchi.util.ksp.asMemberName
 import com.r0adkll.kimchi.util.ksp.findActualType
 import com.r0adkll.kimchi.util.ksp.findParameterThatImplements
 import com.r0adkll.kimchi.util.ksp.implements
-import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.ksp.toClassName
 
 fun CodeBlock.Builder.addUiFactoryCreateStatement(
   element: KSFunctionDeclaration,
@@ -39,11 +40,12 @@ fun CodeBlock.Builder.addUiFactoryCreateStatement(
   // [CircuitUiState] type parameter.
   val stateClassName = stateClassParameter?.type?.findActualType()?.toClassName()
     ?: ClassNames.Circuit.UiState
+
   addStatement(
-    "%M<%T> { state, modifier -> %T(%L) }",
+    "%M<%T> { state, modifier -> %M(%L) }",
     MemberNames.CircuitUi,
     stateClassName,
-    element.toClassName(),
+    element.asMemberName(),
     callParameters.joinToString(),
   )
 }

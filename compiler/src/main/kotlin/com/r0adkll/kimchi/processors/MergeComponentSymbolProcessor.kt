@@ -32,7 +32,6 @@ import com.r0adkll.kimchi.util.ksp.findQualifier
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.hasCompanionObject
 import com.r0adkll.kimchi.util.ksp.isInterface
-import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec

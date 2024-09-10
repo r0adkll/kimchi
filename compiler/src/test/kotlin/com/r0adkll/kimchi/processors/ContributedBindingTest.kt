@@ -343,4 +343,37 @@ class ContributedBindingTest {
         }
     }
   }
+
+  @Test
+  fun `contributed binding with nested type compiles`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import me.tatarka.inject.annotations.Inject
+        import com.r0adkll.kimchi.annotations.ContributesBinding
+
+        interface Parent {
+          interface Binding
+        }
+
+        @ContributesBinding(TestScope::class)
+        @Inject
+        class RealBinding : Parent.Binding
+      """.trimIndent(),
+      workingDir = workingDir,
+    ) {
+      val binding = kotlinClass("kimchi.Parent\$Binding")
+      val realBinding = kotlinClass("kimchi.RealBinding")
+
+      expectThat(mergedTestComponent)
+        .declaredProperties()
+        .withFirst {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+    }
+  }
 }

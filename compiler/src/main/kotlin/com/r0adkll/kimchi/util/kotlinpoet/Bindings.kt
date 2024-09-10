@@ -4,7 +4,6 @@ package com.r0adkll.kimchi.util.kotlinpoet
 
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.r0adkll.kimchi.annotations.ContributesMultibinding
 import com.r0adkll.kimchi.util.buildFun
 import com.r0adkll.kimchi.util.buildProperty
@@ -13,7 +12,6 @@ import com.r0adkll.kimchi.util.ksp.findMapKey
 import com.r0adkll.kimchi.util.ksp.findQualifier
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.pairTypeOf
-import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
@@ -135,7 +133,7 @@ private fun TypeSpec.Builder.addProvidesFunction(
 
 private fun TypeSpec.Builder.addMappingProvidesFunction(
   boundClass: KSClassDeclaration,
-  boundType: KSDeclaration,
+  boundType: KSClassDeclaration,
   mapKey: Any,
   isBindable: Boolean,
 ) {

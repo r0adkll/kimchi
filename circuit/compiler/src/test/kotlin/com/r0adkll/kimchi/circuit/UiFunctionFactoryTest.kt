@@ -18,6 +18,7 @@ import me.tatarka.inject.annotations.Inject
 import me.tatarka.inject.annotations.IntoSet
 import me.tatarka.inject.annotations.Provides
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.CleanupMode
 import org.junit.jupiter.api.io.TempDir
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -25,12 +26,11 @@ import strikt.assertions.isNotNull
 
 class UiFunctionFactoryTest {
 
-  @TempDir
+  @TempDir(cleanup = CleanupMode.NEVER)
   lateinit var workingDir: File
 
   @Test
   fun `ui composable function generates factory and contributed component`() {
-    println(workingDir.absolutePath)
     compileKimchiWithTestSources(
       """
         package kimchi
@@ -70,7 +70,6 @@ class UiFunctionFactoryTest {
 
   @Test
   fun `ui composable function for static screen generates factory and contributed component`() {
-    println(workingDir.absolutePath)
     compileKimchiWithTestSources(
       """
         package kimchi
@@ -110,7 +109,6 @@ class UiFunctionFactoryTest {
 
   @Test
   fun `ui composable function with injected parameters injects into factory`() {
-    println(workingDir.absolutePath)
     compileKimchiWithTestSources(
       """
         package kimchi
@@ -144,7 +142,6 @@ class UiFunctionFactoryTest {
 
   @Test
   fun `ui composable function with injected typealias parameters injects into factory`() {
-    println(workingDir.absolutePath)
     compileKimchiWithTestSources(
       """
         package kimchi
@@ -173,6 +170,93 @@ class UiFunctionFactoryTest {
         .isNotNull()
         .parameter(0)
         .isTypeOf(injectedComposable)
+    }
+  }
+
+  @Test
+  fun `ui composable function with nested screen reference compiles`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import androidx.compose.runtime.Composable
+        import androidx.compose.ui.Modifier
+        import com.r0adkll.kimchi.circuit.annotations.CircuitInject
+        import com.slack.circuit.runtime.screen.Screen
+
+        data object Screens {
+          data object TestScreen : Screen
+        }
+
+        @CircuitInject(Screens.TestScreen::class, TestScope::class)
+        @Composable
+        fun TestUi(
+          state: TestUiState,
+          modifier: Modifier = Modifier,
+        ) { }
+      """.trimIndent(),
+      workingDir = workingDir,
+    ) {
+      val factory = kotlinClass("kimchi.TestUiUiFactory")
+      expectThat(factory)
+        .hasAnnotation(Inject::class)
+        .implements(Ui.Factory::class)
+
+      val component = kotlinClass("kimchi.TestUiUiFactoryComponent")
+      expectThat(component)
+        .withAnnotation<ContributesTo> {
+          get { scope } isEqualTo testScope
+        }
+        .withFunction("bindTestUiUiFactory") {
+          hasAnnotation(IntoSet::class)
+          hasAnnotation(Provides::class)
+          parameter(1)
+            .isTypeOf(factory)
+          hasReturnType(Ui.Factory::class)
+        }
+    }
+  }
+
+  @Test
+  fun `nested ui composable function compiles`() {
+    println(workingDir.absolutePath)
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import androidx.compose.runtime.Composable
+        import androidx.compose.ui.Modifier
+        import com.r0adkll.kimchi.circuit.annotations.CircuitInject
+        import com.slack.circuit.runtime.screen.Screen
+
+        object TestUiScreen {
+          @CircuitInject(TestScreen::class, TestScope::class)
+          @Composable
+          fun TestUi(
+            state: TestUiState,
+            modifier: Modifier = Modifier,
+          ) { }
+        }
+      """.trimIndent(),
+      workingDir = workingDir,
+    ) {
+      val factory = kotlinClass("kimchi.TestUiUiFactory")
+      expectThat(factory)
+        .hasAnnotation(Inject::class)
+        .implements(Ui.Factory::class)
+
+      val component = kotlinClass("kimchi.TestUiUiFactoryComponent")
+      expectThat(component)
+        .withAnnotation<ContributesTo> {
+          get { scope } isEqualTo testScope
+        }
+        .withFunction("bindTestUiUiFactory") {
+          hasAnnotation(IntoSet::class)
+          hasAnnotation(Provides::class)
+          parameter(1)
+            .isTypeOf(factory)
+          hasReturnType(Ui.Factory::class)
+        }
     }
   }
 }
