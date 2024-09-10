@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util
 
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.ksp.toClassName
 
 public fun FileSpec.Companion.buildFile(
   packageName: String,
@@ -45,7 +47,14 @@ public fun FunSpec.Companion.buildConstructor(
   .apply(builder)
   .build()
 
-public fun KSDeclaration.toClassName(): ClassName = ClassName(packageName.asString(), simpleName.asString())
+/**
+ * Wrapper for [KSDeclaration] to avoid casting to [KSClassDeclaration] in various locations.
+ * @see toClassName
+ */
+public fun KSDeclaration.toClassName(): ClassName = when (this) {
+  is KSClassDeclaration -> toClassName()
+  else -> ClassName.bestGuess(qualifiedName!!.asString())
+}
 
 public fun <T> T.applyIf(predicate: Boolean, block: T.() -> Unit): T {
   return if (predicate) apply(block) else this

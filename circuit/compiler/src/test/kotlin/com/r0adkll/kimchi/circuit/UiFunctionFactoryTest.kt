@@ -175,4 +175,48 @@ class UiFunctionFactoryTest {
         .isTypeOf(injectedComposable)
     }
   }
+
+  @Test
+  fun `ui composable function with nested screen reference compiles`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import androidx.compose.runtime.Composable
+        import androidx.compose.ui.Modifier
+        import com.r0adkll.kimchi.circuit.annotations.CircuitInject
+        import com.slack.circuit.runtime.screen.Screen
+
+        data object Screens {
+          data object TestScreen : Screen
+        }
+
+        @CircuitInject(Screens.TestScreen::class, TestScope::class)
+        @Composable
+        fun TestUi(
+          state: TestUiState,
+          modifier: Modifier = Modifier,
+        ) { }
+      """.trimIndent(),
+      workingDir = workingDir,
+    ) {
+      val factory = kotlinClass("kimchi.TestUiUiFactory")
+      expectThat(factory)
+        .hasAnnotation(Inject::class)
+        .implements(Ui.Factory::class)
+
+      val component = kotlinClass("kimchi.TestUiUiFactoryComponent")
+      expectThat(component)
+        .withAnnotation<ContributesTo> {
+          get { scope } isEqualTo testScope
+        }
+        .withFunction("bindTestUiUiFactory") {
+          hasAnnotation(IntoSet::class)
+          hasAnnotation(Provides::class)
+          parameter(1)
+            .isTypeOf(factory)
+          hasReturnType(Ui.Factory::class)
+        }
+    }
+  }
 }
