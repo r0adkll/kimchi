@@ -3,7 +3,6 @@
 package com.r0adkll.kimchi.util.ksp
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.r0adkll.kimchi.util.KimchiException
 import com.squareup.kotlinpoet.asTypeName
@@ -12,7 +11,7 @@ import kotlin.reflect.KClass
 
 fun KSClassDeclaration.findBindingTypeFor(
   bindingAnnotation: KClass<*>,
-): KSDeclaration {
+): KSClassDeclaration {
   // 1) Check if there is an explicit type defined by the binding annotation
   val annotation = findAnnotation(bindingAnnotation)
     ?: error("Unable to find annotation, ${bindingAnnotation.simpleName}, on class ${simpleName.asString()}")
@@ -21,7 +20,7 @@ fun KSClassDeclaration.findBindingTypeFor(
   val defaultTypeArgument = annotation.defaultArgumentAt(BOUND_TYPE_NAME, BOUND_TYPE_POSITIONAL_INDEX)
 
   return if (boundTypeArgument != null && boundTypeArgument.value != defaultTypeArgument?.value) {
-    (boundTypeArgument.value as KSType).declaration
+    (boundTypeArgument.value as KSType).declaration as KSClassDeclaration
   } else {
     val superTypeCount = superTypes
       .filterNot { it.toTypeName() == Any::class.asTypeName() }

@@ -23,11 +23,12 @@ import com.r0adkll.kimchi.util.buildConstructor
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.capitalized
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
+import com.r0adkll.kimchi.util.ksp.asMemberName
 import com.r0adkll.kimchi.util.ksp.directReturnTypeIs
+import com.r0adkll.kimchi.util.ksp.findActualType
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.implements
 import com.r0adkll.kimchi.util.ksp.returnTypeIs
-import com.r0adkll.kimchi.util.toClassName
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -221,7 +222,7 @@ class CircuitInjectSymbolProcessor(
       ?.mapNotNull { parameter ->
         if (parameter.hasAnnotation(Assisted::class)) {
           // Validate that injected type is allowed type
-          val parameterTypeClassName = parameter.type.resolve().declaration.toClassName()
+          val parameterTypeClassName = parameter.type.findActualType().toClassName()
           if (parameterTypeClassName in allowedAssistedTypes) {
             ParameterSpec(parameter.name!!.asString(), parameterTypeClassName)
           } else {
@@ -362,9 +363,9 @@ class CircuitInjectSymbolProcessor(
                   .beginControlFlow("return when(screen)")
                   .beginControlFlow("is %T ->", annotation.screen)
                   .addStatement(
-                    "%M { %T() }",
+                    "%M { %M() }",
                     MemberNames.CircuitPresenterOf,
-                    element.toClassName(),
+                    element.asMemberName(),
                   )
                   .endControlFlow()
                   .addStatement("else -> null")
@@ -403,7 +404,7 @@ class CircuitInjectSymbolProcessor(
       ?.mapNotNull { parameter ->
         if (parameter.hasAnnotation(Assisted::class)) {
           // Validate that injected type is allowed type
-          val parameterTypeClassName = parameter.type.resolve().declaration.toClassName()
+          val parameterTypeClassName = parameter.type.findActualType().toClassName()
           if (parameterTypeClassName in allowedAssistedTypes) {
             ParameterSpec(parameter.name!!.asString(), parameterTypeClassName)
           } else {
