@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+## [0.3.1] - 2024-09-10
+
 ### Fixed
 
 - Fixed naive `toClassName()` function that broke on nested classes - [https://github.com/r0adkll/kimchi/pull/48]
