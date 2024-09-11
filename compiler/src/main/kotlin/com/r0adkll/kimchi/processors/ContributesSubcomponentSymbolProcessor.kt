@@ -11,7 +11,7 @@ import com.r0adkll.kimchi.HINT_SUBCOMPONENT_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.annotations.ContributesSubcomponentAnnotation
 import com.r0adkll.kimchi.util.KimchiException
-import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
+import com.r0adkll.kimchi.util.ksp.component.SubcomponentDeclaration
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.isInterface
 import com.squareup.kotlinpoet.ClassName

@@ -21,29 +21,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+### Fixed
+
+- Fixed explicit parent components with @MergeComponent components - [#52](https://github.com/r0adkll/kimchi/pull/52)
+
 ## [0.3.1] - 2024-09-10
 
 ### Fixed
 
-- Fixed naive `toClassName()` function that broke on nested classes - [https://github.com/r0adkll/kimchi/pull/48]
+- Fixed naive `toClassName()` function that broke on nested classes - [#48](https://github.com/r0adkll/kimchi/pull/48)
 
 ## [0.3.0] - 2024-09-09
 
 ### Fixed
 
 - Fixed issue where @ContributesBinding elements with constructor injections and no @Inject annotation
-- Fixed annotations passed to merged implementations clashing with kotlin-inject generation. - [https://github.com/r0adkll/kimchi/pull/43]
-- Fixed root component creation extension function to account for defined companion objects. - [https://github.com/r0adkll/kimchi/pull/39]
+- Fixed annotations passed to merged implementations clashing with kotlin-inject generation. - [#43](https://github.com/r0adkll/kimchi/pull/43)
+- Fixed root component creation extension function to account for defined companion objects. - [#39](https://github.com/r0adkll/kimchi/pull/39)
 
 ## [0.2.0] - 2024-08-24
 
 ### Added
 
-- [Circuit] Added ability to inject additional elements into Ui composable functions - [https://github.com/r0adkll/kimchi/pull/30]
+- [Circuit] Added ability to inject additional elements into Ui composable functions - [#30](https://github.com/r0adkll/kimchi/pull/30)
 
 ### Fixed
 
-- Fixed `rank` ordering when contributing multiple bindings of the same type - [https://github.com/r0adkll/kimchi/pull/34]
+- Fixed `rank` ordering when contributing multiple bindings of the same type - [#34](https://github.com/r0adkll/kimchi/pull/34)
 
 ## [0.1.1] - 2024-08-24
 
