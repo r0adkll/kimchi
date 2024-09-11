@@ -5,7 +5,9 @@ package com.r0adkll.kimchi.processors
 import com.r0adkll.kimchi.compileKimchiWithTestSources
 import com.r0adkll.kimchi.hasAnnotation
 import com.r0adkll.kimchi.kotlinClass
+import com.r0adkll.kimchi.parameter
 import com.r0adkll.kimchi.primaryConstructor
+import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
 import kotlin.reflect.full.declaredMemberProperties
 import me.tatarka.inject.annotations.Component
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.CleanupMode
 import org.junit.jupiter.api.io.TempDir
 import strikt.api.expectThat
+import strikt.assertions.any
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEmpty
 import strikt.assertions.isNotNull
@@ -20,7 +23,7 @@ import strikt.assertions.none
 
 class MergeComponentParameterTest {
 
-  @TempDir(cleanup = CleanupMode.NEVER)
+  @TempDir(cleanup = CleanupMode.ON_SUCCESS)
   lateinit var workingDir: File
 
   @Test
@@ -87,7 +90,7 @@ class MergeComponentParameterTest {
   }
 
   @Test
-  fun `@MergeComponent abstract class @Component parameters get passed on`() {
+  fun `@MergeComponent with parent @Component open val parameters compile`() {
     print(workingDir.absolutePath)
     compileKimchiWithTestSources(
       """
@@ -103,8 +106,7 @@ class MergeComponentParameterTest {
 
         @MergeComponent(ParamScope::class)
         abstract class ParameterComponent(
-          val param: Any,
-          @Component val parent: ParentComponent,
+          @Component open val parent: ParentComponent,
         ) {
             companion object
         }
@@ -113,12 +115,117 @@ class MergeComponentParameterTest {
     ) {
       val mergedParameterComponent = kotlinClass("kimchi.merge.kimchi.MergedParameterComponent")
 
-      expectThat(mergedParameterComponent)
-        .get { declaredMemberProperties }
-        .none {
-          get { name } isEqualTo "parent"
-          hasAnnotation(Component::class)
-        }
+      expectThat(mergedParameterComponent) {
+        primaryConstructor()
+          .isNotNull()
+          .parameter(0)
+          .and {
+            get { name } isEqualTo "parent"
+            hasAnnotation(Component::class)
+          }
+
+        get { declaredMemberProperties }
+          .any {
+            get { name } isEqualTo "parent"
+          }
+      }
     }
+  }
+
+  @Test
+  fun `@MergeComponent with parent @Component non-value parameter compile`() {
+    print(workingDir.absolutePath)
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.MergeComponent
+        import me.tatarka.inject.annotations.Component
+
+        object ParamScope
+
+        @Component
+        abstract class ParentComponent
+
+        @MergeComponent(ParamScope::class)
+        abstract class ParameterComponent(
+          @Component parent: ParentComponent,
+        ) {
+            companion object
+        }
+      """.trimIndent(),
+      workingDir = workingDir,
+    ) {
+      val mergedParameterComponent = kotlinClass("kimchi.merge.kimchi.MergedParameterComponent")
+
+      expectThat(mergedParameterComponent) {
+        primaryConstructor()
+          .isNotNull()
+          .parameter(0)
+          .and {
+            get { name } isEqualTo "parent"
+            hasAnnotation(Component::class)
+          }
+
+        get { declaredMemberProperties }
+          .any {
+            get { name } isEqualTo "parent"
+          }
+      }
+    }
+  }
+
+  @Test
+  fun `@MergeComponent with parent @Component non-open val parameter fails`() {
+    print(workingDir.absolutePath)
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.MergeComponent
+        import me.tatarka.inject.annotations.Component
+
+        object ParamScope
+
+        @Component
+        abstract class ParentComponent
+
+        @MergeComponent(ParamScope::class)
+        abstract class ParameterComponent(
+          @Component val parent: ParentComponent,
+        ) {
+            companion object
+        }
+      """.trimIndent(),
+      workingDir = workingDir,
+      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR,
+    )
+  }
+
+  @Test
+  fun `@MergeComponent with parent @Component var parameter fails`() {
+    print(workingDir.absolutePath)
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.MergeComponent
+        import me.tatarka.inject.annotations.Component
+
+        object ParamScope
+
+        @Component
+        abstract class ParentComponent
+
+        @MergeComponent(ParamScope::class)
+        abstract class ParameterComponent(
+          @Component var parent: ParentComponent,
+        ) {
+            companion object
+        }
+      """.trimIndent(),
+      workingDir = workingDir,
+      expectExitCode = KotlinCompilation.ExitCode.INTERNAL_ERROR,
+    )
   }
 }

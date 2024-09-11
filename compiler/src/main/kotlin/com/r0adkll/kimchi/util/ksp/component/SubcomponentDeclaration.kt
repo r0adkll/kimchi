@@ -1,6 +1,6 @@
 // Copyright (C) 2024 r0adkll
 // SPDX-License-Identifier: Apache-2.0
-package com.r0adkll.kimchi.util.ksp
+package com.r0adkll.kimchi.util.ksp.component
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getDeclaredFunctions
@@ -12,10 +12,15 @@ import com.r0adkll.kimchi.annotations.ContributesSubcomponentAnnotation
 import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.buildFun
 import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
+import com.r0adkll.kimchi.util.ksp.ConstructorParameter
+import com.r0adkll.kimchi.util.ksp.isInterface
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
+import me.tatarka.inject.annotations.Provides
 
 /**
  * A custom overlay of [KSClassDeclaration] to provide a unified way of
@@ -24,7 +29,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  */
 class SubcomponentDeclaration(
   private val clazz: KSClassDeclaration,
-) : KSClassDeclaration by clazz {
+) : KSClassDeclaration by clazz, ComponentDeclaration {
 
   val subcomponentSimpleName: String
     get() = "Merged${simpleName.asString()}"
@@ -45,6 +50,26 @@ class SubcomponentDeclaration(
           "@ContributesSubcomponent.Factory",
         clazz,
       )
+  }
+
+  override fun constructorParameters(): List<ConstructorParameter> {
+    return factoryClass.factoryFunction.parameters.map { parameter ->
+      ConstructorParameter(
+        parameterSpec = parameter.toParameterSpec {
+          // Add an @get:Provides annotation to provide this parameter to the
+          // dependency graph
+          addAnnotation(
+            AnnotationSpec.builder(Provides::class)
+              .useSiteTarget(AnnotationSpec.UseSiteTarget.GET)
+              .build(),
+          )
+        },
+        propertySpec = PropertySpec
+          .builder(parameter.name!!.asString(), parameter.type.toTypeName())
+          .initializer(parameter.name!!.asString())
+          .build(),
+      )
+    }
   }
 
   fun createFactoryFunctionOverload(

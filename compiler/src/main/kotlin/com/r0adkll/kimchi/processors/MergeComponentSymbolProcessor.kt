@@ -21,18 +21,18 @@ import com.r0adkll.kimchi.annotations.ContributesToAnnotation
 import com.r0adkll.kimchi.annotations.MergeComponent
 import com.r0adkll.kimchi.annotations.MergingAnnotation
 import com.r0adkll.kimchi.util.KimchiException
-import com.r0adkll.kimchi.util.addIfNonNull
 import com.r0adkll.kimchi.util.buildClass
 import com.r0adkll.kimchi.util.buildFile
 import com.r0adkll.kimchi.util.kotlinpoet.addBinding
-import com.r0adkll.kimchi.util.kotlinpoet.toParameterSpec
-import com.r0adkll.kimchi.util.ksp.SubcomponentDeclaration
+import com.r0adkll.kimchi.util.ksp.ConstructorParameter
+import com.r0adkll.kimchi.util.ksp.addParameters
+import com.r0adkll.kimchi.util.ksp.component.MergeComponentDeclaration
+import com.r0adkll.kimchi.util.ksp.component.SubcomponentDeclaration
 import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
 import com.r0adkll.kimchi.util.ksp.findQualifier
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.hasCompanionObject
 import com.r0adkll.kimchi.util.ksp.isInterface
-import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -50,7 +50,6 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
 import kotlin.reflect.KClass
 import me.tatarka.inject.annotations.Component
-import me.tatarka.inject.annotations.Provides
 
 internal class MergeComponentSymbolProcessor(
   private val env: SymbolProcessorEnvironment,
@@ -227,54 +226,40 @@ internal class MergeComponentSymbolProcessor(
         superclass(element.toClassName())
       }
 
-      // If we are generating a subcomponent, then parse the underlying component constructor params
-      // from its defined factory class and function.
-      val constructorParams = if (isSubcomponent) {
-        val subcomponent = SubcomponentDeclaration(element)
-        subcomponent.factoryClass.factoryFunction.parameters.map {
-          // Add initializer property to make this parameter a `val` in the constructor
-          addProperty(
-            PropertySpec.builder(it.name!!.asString(), it.type.toTypeName())
-              .initializer(it.name!!.asString())
-              .build(),
-          )
-
-          it.toParameterSpec {
-            // Add an @get:Provides annotation to provide this parameter to the
-            // dependency graph
-            addAnnotation(
-              AnnotationSpec.builder(Provides::class)
-                .useSiteTarget(AnnotationSpec.UseSiteTarget.GET)
-                .build(),
-            )
-          }
-        }
+      // Based on the type of component we are generating here, get the list of
+      // constructor parameters and their matching value properties (if needed)
+      val superClassConstructorParams = if (isSubcomponent) {
+        SubcomponentDeclaration(element).constructorParameters()
       } else {
-        getConstructorParameters(element)
+        MergeComponentDeclaration(element).constructorParameters()
       }
 
       // If this is a subcomponent, i.e it has a parent,
       // then we need to add it's parent as an @Component parameter, but
       // not add it to the superclass constructor params
-      val parentParameter = if (parent != null) {
-        // Add the initializer property to the class to properly create the
-        // constructor parent component reference.
-        addProperty(
-          PropertySpec.builder("parent", parent)
-            .initializer("parent")
-            .build(),
-        )
-
-        ParameterSpec.builder("parent", parent)
-          .addAnnotation(Component::class)
-          .build()
+      val constructorParams = if (parent != null) {
+        superClassConstructorParams +
+          ConstructorParameter(
+            parameterSpec = ParameterSpec.builder("parent", parent)
+              .addAnnotation(Component::class)
+              .build(),
+            propertySpec = PropertySpec.builder("parent", parent)
+              .initializer("parent")
+              .build(),
+          )
       } else {
-        null
+        superClassConstructorParams
       }
 
+      // Add all the property spec from the constructor parameters to
+      // ensure those are set as value property params
+      addProperties(constructorParams.mapNotNull { it.propertySpec })
+
+      // Add all our parameters to the primaryConstructor of our generated
+      // merged component
       primaryConstructor(
         FunSpec.constructorBuilder()
-          .addParameters(constructorParams addIfNonNull parentParameter)
+          .addParameters(constructorParams)
           .build(),
       )
 
@@ -282,9 +267,10 @@ internal class MergeComponentSymbolProcessor(
       // to define how the merged component implements its constructor parameters. So we can just
       // skip adding superclass constructor params in this case.
       if (!isSubcomponent) {
-        constructorParams.map { it.name }.forEach {
-          addSuperclassConstructorParameter("%L", it)
-        }
+        superClassConstructorParams
+          .map { it.parameterSpec.name }.forEach {
+            addSuperclassConstructorParameter("%L", it)
+          }
       }
 
       // Add all the contributed interfaces
