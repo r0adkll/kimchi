@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.annotations
 
+import kotlin.reflect.KClass
+
 /**
  * Defines a key that can be used for contributing multibinding elements to a map. Annotations
  * annotated with [MapKey] should have a single parameter of any type. Kimchi will then use this
@@ -27,26 +29,33 @@ package com.r0adkll.kimchi.annotations
  * ```
  */
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 annotation class MapKey
 
 @MapKey
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 annotation class StringKey(
   val value: String,
 )
 
 @MapKey
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 annotation class IntKey(
   val value: Int,
 )
 
 @MapKey
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 annotation class LongKey(
   val value: Long,
+)
+
+@MapKey
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+annotation class ClassKey(
+  val value: KClass<*>,
 )

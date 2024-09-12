@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -69,3 +70,6 @@ public val KSType.classDeclaration: KSClassDeclaration
 
 public val KSClassDeclaration.isInterface: Boolean
   get() = this.classKind == ClassKind.INTERFACE
+
+public val KSDeclaration.safeRequiredQualifiedName: String
+  get() = qualifiedName!!.asString().replace(".", "_")

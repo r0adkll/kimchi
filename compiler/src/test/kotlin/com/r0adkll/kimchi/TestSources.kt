@@ -69,6 +69,68 @@ val SingleIn = """
 val JvmCompilationResult.singleIn: KClass<*>
   get() = kotlinClass("kimchi.SingleIn")
 
+@Language("kotlin")
+val ByteKey = """
+  package kimchi
+  import com.r0adkll.kimchi.annotations.MapKey
+  @MapKey
+  annotation class ByteKey(val value: Byte)
+""".trimIndent()
+
+@Language("kotlin")
+val ShortKey = """
+  package kimchi
+  import com.r0adkll.kimchi.annotations.MapKey
+  @MapKey
+  annotation class ShortKey(val value: Short)
+""".trimIndent()
+
+@Language("kotlin")
+val FloatKey = """
+  package kimchi
+  import com.r0adkll.kimchi.annotations.MapKey
+  @MapKey
+  annotation class FloatKey(val value: Float)
+""".trimIndent()
+
+@Language("kotlin")
+val DoubleKey = """
+  package kimchi
+  import com.r0adkll.kimchi.annotations.MapKey
+  @MapKey
+  annotation class DoubleKey(val value: Double)
+""".trimIndent()
+
+@Language("kotlin")
+val CharKey = """
+  package kimchi
+  import com.r0adkll.kimchi.annotations.MapKey
+  @MapKey
+  annotation class CharKey(val value: Char)
+""".trimIndent()
+
+@Language("kotlin")
+val BooleanKey = """
+  package kimchi
+  import com.r0adkll.kimchi.annotations.MapKey
+  @MapKey
+  annotation class BooleanKey(val value: Boolean)
+""".trimIndent()
+
+enum class Keynum {
+  First, Second, Third
+}
+
+@Language("kotlin")
+val EnumKey = """
+  package kimchi
+  import com.r0adkll.kimchi.annotations.MapKey
+  import com.r0adkll.kimchi.Keynum
+
+  @MapKey
+  annotation class EnumKey(val value: Keynum)
+""".trimIndent()
+
 /**
  * Add source files here to include in every compiler test
  */
@@ -78,6 +140,13 @@ val commonTestSources = arrayOf(
   TestQualifier,
   TestComponent,
   SingleIn,
+  ByteKey,
+  ShortKey,
+  FloatKey,
+  DoubleKey,
+  CharKey,
+  BooleanKey,
+  EnumKey,
 )
 
 /**
