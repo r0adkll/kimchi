@@ -26,7 +26,7 @@ import strikt.assertions.isEqualTo
 
 class HintSymbolProcessorTest {
 
-  @TempDir(cleanup = CleanupMode.NEVER)
+  @TempDir(cleanup = CleanupMode.ON_SUCCESS)
   lateinit var workingDir: File
 
   @ParameterizedTest
