@@ -220,6 +220,9 @@ Checkout the [:circuit](circuit/README.md) subproject for an example of this.
 [![Maven Central](https://img.shields.io/maven-central/v/com.r0adkll.kimchi/kimchi-compiler.svg)](https://search.maven.org/search?q=g:com.r0adkll.kimchi)
 [![Sonatype Snapshot](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.r0adkll.kimchi/kimchi-compiler.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/r0adkll/kimchi/)
 
+**kotlin-inject**   
+[![Maven Central](https://img.shields.io/maven-central/v/me.tatarka.inject/kotlin-inject-runtime.svg)](https://search.maven.org/search?q=g:me.tatarka.inject)
+
 **`build.gradle.kts`**
 
 ```kotlin
