@@ -10,6 +10,8 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.r0adkll.kimchi.REFERENCE_SUFFIX
 import com.r0adkll.kimchi.SCOPE_SUFFIX
 import com.r0adkll.kimchi.util.buildFile
+import com.r0adkll.kimchi.util.ksp.asUrlSafeString
+import com.r0adkll.kimchi.util.ksp.requireQualifiedName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
@@ -65,10 +67,10 @@ internal abstract class HintSymbolProcessor(
   private fun process(
     element: KSClassDeclaration,
   ): FileSpec {
-    val fileName = element.simpleName.asString()
+    // TODO: In other examples using the fq name for file names has been known to hit length limits
+    //  so we should look into using a hash instead.
+    val fileName = element.requireQualifiedName.asUrlSafeString()
     val className = element.toClassName()
-    val propertyName = element.qualifiedName!!.asString()
-      .replace(".", "_")
 
     validate(element)
 
@@ -79,7 +81,7 @@ internal abstract class HintSymbolProcessor(
       addProperty(
         PropertySpec
           .builder(
-            name = propertyName + REFERENCE_SUFFIX,
+            name = fileName + REFERENCE_SUFFIX,
             type = KClass::class.asClassName().parameterizedBy(className),
           )
           .initializer("%T::class", className)
@@ -91,7 +93,7 @@ internal abstract class HintSymbolProcessor(
       addProperty(
         PropertySpec
           .builder(
-            name = propertyName + SCOPE_SUFFIX,
+            name = fileName + SCOPE_SUFFIX,
             type = KClass::class.asClassName().parameterizedBy(scope),
           )
           .initializer("%T::class", scope)

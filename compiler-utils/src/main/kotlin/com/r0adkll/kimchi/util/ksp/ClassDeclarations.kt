@@ -4,6 +4,7 @@ package com.r0adkll.kimchi.util.ksp
 
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 
@@ -16,3 +17,6 @@ public fun KSClassDeclaration.implements(className: ClassName): Boolean {
     it.toClassName() == className
   }
 }
+
+public val KSClassDeclaration.requireQualifiedName: KSName
+  get() = qualifiedName!!
