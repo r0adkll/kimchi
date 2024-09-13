@@ -7,6 +7,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.r0adkll.kimchi.annotations.ContributesMultibinding
 import com.r0adkll.kimchi.util.buildFun
 import com.r0adkll.kimchi.util.buildProperty
+import com.r0adkll.kimchi.util.ksp.MapKeyValue
 import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
 import com.r0adkll.kimchi.util.ksp.findMapKey
 import com.r0adkll.kimchi.util.ksp.findQualifier
@@ -17,7 +18,6 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -134,12 +134,12 @@ private fun TypeSpec.Builder.addProvidesFunction(
 private fun TypeSpec.Builder.addMappingProvidesFunction(
   boundClass: KSClassDeclaration,
   boundType: KSClassDeclaration,
-  mapKey: Any,
+  mapKey: MapKeyValue,
   isBindable: Boolean,
 ) {
   addFunction(
-    FunSpec.buildFun("provide${boundType.simpleName.asString()}_$mapKey") {
-      returns(pairTypeOf(mapKey::class.asTypeName(), boundType.toClassName()))
+    FunSpec.buildFun("provide${boundType.simpleName.asString()}_${mapKey.functionSuffix()}") {
+      returns(pairTypeOf(mapKey.type(), boundType.toClassName()))
 
       addAnnotation(Provides::class)
       addAnnotation(IntoMap::class)
@@ -149,19 +149,13 @@ private fun TypeSpec.Builder.addMappingProvidesFunction(
       }
 
       if (isBindable) {
+        val (format, value) = mapKey.value()
         addParameter("value", boundClass.toClassName())
-        if (mapKey is String) {
-          addStatement("return (%S to value)", mapKey)
-        } else {
-          addStatement("return (%L to value)", mapKey)
-        }
+        addStatement("return ($format to value)", value)
       } else {
+        val (format, value) = mapKey.value()
         val valueTemplate = if (boundClass.classKind == ClassKind.OBJECT) "%T" else "%T()"
-        if (mapKey is String) {
-          addStatement("return (%S to $valueTemplate)", mapKey, boundClass.toClassName())
-        } else {
-          addStatement("return (%L to $valueTemplate)", mapKey, boundClass.toClassName())
-        }
+        addStatement("return ($format to $valueTemplate)", value, boundClass.toClassName())
       }
     },
   )

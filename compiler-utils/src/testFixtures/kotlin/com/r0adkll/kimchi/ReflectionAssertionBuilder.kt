@@ -85,7 +85,7 @@ public inline fun Assertion.Builder<KClass<*>>.withFunction(
   name: String,
   crossinline block: Assertion.Builder<KFunction<*>>.() -> Unit,
 ): Assertion.Builder<KClass<*>> {
-  return with({ functions.find { it.name == name } }) {
+  return with(name, { functions.find { it.name == name } }) {
     isNotNull().block()
   }
 }

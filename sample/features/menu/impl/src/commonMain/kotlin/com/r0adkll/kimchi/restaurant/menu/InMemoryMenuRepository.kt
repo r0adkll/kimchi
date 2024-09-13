@@ -9,6 +9,7 @@ import com.r0adkll.kimchi.restaurant.common.scopes.UserScope
 import com.r0adkll.kimchi.restaurant.menu.model.Menu
 import com.r0adkll.kimchi.restaurant.menu.model.MenuItem
 import com.r0adkll.kimchi.restaurant.menu.model.MenuSection
+import kotlin.reflect.KClass
 import me.tatarka.inject.annotations.Inject
 
 @SingleIn(UserScope::class)
@@ -20,6 +21,7 @@ class InMemoryMenuRepository(
   @Named("dessert") val dessert: MenuSection,
   @Named("dujour") val duJours: Map<String, MenuSection>,
   @Named("beverages") val beverages: Set<MenuSection>,
+  val dessertDuJour: Map<KClass<*>, MenuSection>,
 ) : MenuRepository {
 
   override suspend fun getMenu(): Menu {
@@ -29,6 +31,7 @@ class InMemoryMenuRepository(
         entrees + duJours["entree"],
         dessert + duJours["dessert"],
         *beverages.toTypedArray(),
+        *dessertDuJour.values.toTypedArray(),
       ),
     )
   }
