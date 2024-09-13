@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi
 
+import com.r0adkll.kimchi.util.capitalized
 import com.squareup.kotlinpoet.asClassName
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -22,7 +23,19 @@ fun Class<*>.getHintScope(hintPackage: String): KClass<*>? =
 fun Class<*>.contributedProperties(
   hintPackageName: String,
 ): List<KClass<*>>? {
-  val clazz = topLevelClass(hintPackageName) ?: return null
+  // The capitalize() comes from kotlinc's implicit handling of file names -> class names. It will
+  // always, unless otherwise instructed via `@file:JvmName`, capitalize its facade class.
+  val className = kotlin.asClassName()
+    .canonicalName
+    .replace(".", "_")
+    .capitalized()
+    .plus("Kt")
+
+  val clazz = try {
+    classLoader.loadClass("$hintPackageName.$className")
+  } catch (e: ClassNotFoundException) {
+    return null
+  }
 
   return clazz.declaredFields
     .sortedBy { it.name }
@@ -33,25 +46,20 @@ fun Class<*>.contributedProperties(
 fun Class<*>.topLevelFunctions(
   packageName: String,
 ): List<KFunction<*>>? {
-  val clazz = topLevelClass(packageName) ?: return null
-
-  return clazz.declaredMethods
-    .sortedBy { it.name }
-    .mapNotNull { method -> method.kotlinFunction }
-}
-
-private fun Class<*>.topLevelClass(
-  packageName: String,
-): Class<*>? {
   // The capitalize() comes from kotlinc's implicit handling of file names -> class names. It will
   // always, unless otherwise instructed via `@file:JvmName`, capitalize its facade class.
   val className = kotlin.asClassName()
     .simpleName
+    .capitalized()
     .plus("Kt")
 
-  return try {
+  val clazz = try {
     classLoader.loadClass("$packageName.$className")
   } catch (e: ClassNotFoundException) {
-    null
+    return null
   }
+
+  return clazz.declaredMethods
+    .sortedBy { it.name }
+    .mapNotNull { method -> method.kotlinFunction }
 }

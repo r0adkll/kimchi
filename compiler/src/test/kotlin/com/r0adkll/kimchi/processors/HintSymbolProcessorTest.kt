@@ -16,6 +16,8 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
 import kotlin.reflect.KClass
 import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.CleanupMode
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -24,7 +26,7 @@ import strikt.assertions.isEqualTo
 
 class HintSymbolProcessorTest {
 
-  @TempDir
+  @TempDir(cleanup = CleanupMode.ON_SUCCESS)
   lateinit var workingDir: File
 
   @ParameterizedTest
@@ -42,6 +44,30 @@ class HintSymbolProcessorTest {
       expectThat(hint).isEqualTo(hintTest.expectedHint(this))
       expectThat(scope).isEqualTo(hintTest.expectedScope(this))
     }
+  }
+
+  @Test
+  fun `Duplicate class names do NOT cause a collision`() {
+    println(workingDir.absolutePath)
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.ContributesTo
+
+        interface Outer1 {
+          @ContributesTo(TestScope::class)
+          interface Inner
+        }
+
+        interface Outer2 {
+          @ContributesTo(TestScope::class)
+          interface Inner
+        }
+      """.trimIndent(),
+      workingDir = workingDir,
+      expectExitCode = KotlinCompilation.ExitCode.OK,
+    )
   }
 
   companion object {

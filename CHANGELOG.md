@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed explicit parent components with @MergeComponent components - [#52](https://github.com/r0adkll/kimchi/pull/52)
 - Fixed non-primitive custom keys not generating correctly - [#55](https://github.com/r0adkll/kimchi/pull/55)
+- Fixed name collisions with generated hint classes - [#56](https://github.com/r0adkll/kimchi/pull/56)
 
 ## [0.3.1] - 2024-09-10
 
