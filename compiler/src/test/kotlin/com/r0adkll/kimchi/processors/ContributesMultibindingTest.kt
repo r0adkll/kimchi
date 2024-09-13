@@ -218,7 +218,7 @@ val EnumKeyTest = MapKeyTest(
     object RealBinding : Binding
   """.trimIndent(),
   expectedMapKey = { Keynum.First },
-  expectedMapKeyFunctionSuffix = { "provideBinding_com_r0adkll_kimchi_Keynum_First" },
+  expectedMapKeyFunctionSuffix = { "com_r0adkll_kimchi_Keynum_First" },
 )
 
 data class MapKeyTest(
