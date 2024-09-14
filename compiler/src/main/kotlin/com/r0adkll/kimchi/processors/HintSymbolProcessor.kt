@@ -37,11 +37,11 @@ internal abstract class HintSymbolProcessor(
   abstract val annotation: KClass<*>
 
   /**
-   * Define how to determine the targeted scope of the hint
-   * @param element the [KSClassDeclaration] of the class annotated with [annotation]
-   * @return the [ClassName] of the scope this hint will target
+   * Define how to determine the targeted scopes of the hint
+   * @param element the [KSClassDeclaration] of the class annotated with [annotation]s
+   * @return the list [ClassName] of all the scopes this hint will target
    */
-  abstract fun getScope(element: KSClassDeclaration): ClassName
+  abstract fun getScopes(element: KSClassDeclaration): Set<ClassName>
 
   /**
    * Validate that the [element] annotated with this hint generator
@@ -74,7 +74,7 @@ internal abstract class HintSymbolProcessor(
 
     validate(element)
 
-    val scope = getScope(element)
+    val scopes = getScopes(element)
 
     return FileSpec.buildFile(hintPackageName, fileName) {
       // Reference Hint
@@ -89,17 +89,19 @@ internal abstract class HintSymbolProcessor(
           .build(),
       )
 
-      // Scope Hint
-      addProperty(
-        PropertySpec
-          .builder(
-            name = fileName + SCOPE_SUFFIX,
-            type = KClass::class.asClassName().parameterizedBy(scope),
-          )
-          .initializer("%T::class", scope)
-          .addModifiers(KModifier.PUBLIC)
-          .build(),
-      )
+      // Scope(s) Hint
+      scopes.forEachIndexed { index, scope ->
+        addProperty(
+          PropertySpec
+            .builder(
+              name = "${fileName}${SCOPE_SUFFIX}_$index",
+              type = KClass::class.asClassName().parameterizedBy(scope),
+            )
+            .initializer("%T::class", scope)
+            .addModifiers(KModifier.PUBLIC)
+            .build(),
+        )
+      }
     }
   }
 }

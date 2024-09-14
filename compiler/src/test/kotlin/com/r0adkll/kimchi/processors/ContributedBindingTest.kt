@@ -11,6 +11,7 @@ import com.r0adkll.kimchi.hasReturnType
 import com.r0adkll.kimchi.hasReturnTypeOf
 import com.r0adkll.kimchi.kotlinClass
 import com.r0adkll.kimchi.mergedTestComponent
+import com.r0adkll.kimchi.mergedTestComponent2
 import com.r0adkll.kimchi.testQualifier
 import com.r0adkll.kimchi.withFunction
 import com.tschuchort.compiletesting.KotlinCompilation
@@ -368,6 +369,188 @@ class ContributedBindingTest {
 
       expectThat(mergedTestComponent)
         .declaredProperties()
+        .withFirst {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+    }
+  }
+
+  @Test
+  fun `multiple @ContributesBinding with different scopes compiles`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.ContributesBinding
+        import me.tatarka.inject.annotations.Inject
+
+        interface Binding
+
+        @ContributesBinding(TestScope::class)
+        @ContributesBinding(TestScope2::class)
+        @Inject
+        class RealBinding : Binding
+      """.trimIndent(),
+      workingDir = workingDir,
+      expectExitCode = KotlinCompilation.ExitCode.OK,
+    ) {
+      val binding = kotlinClass("kimchi.Binding")
+      val realBinding = kotlinClass("kimchi.RealBinding")
+
+      expectThat(mergedTestComponent)
+        .declaredProperties()
+        .hasSize(1)
+        .withFirst {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+
+      expectThat(mergedTestComponent2)
+        .declaredProperties()
+        .hasSize(1)
+        .withFirst {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+    }
+  }
+
+  @Test
+  fun `multiple @ContributesBinding with different boundTypes compiles`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.ContributesBinding
+        import me.tatarka.inject.annotations.Inject
+
+        interface UnderBinding
+        interface Binding : UnderBinding
+
+        @ContributesBinding(TestScope::class)
+        @ContributesBinding(TestScope::class, boundType = UnderBinding::class)
+        @Inject
+        class RealBinding : Binding
+      """.trimIndent(),
+      workingDir = workingDir,
+      expectExitCode = KotlinCompilation.ExitCode.OK,
+    ) {
+      val binding = kotlinClass("kimchi.Binding")
+      val realBinding = kotlinClass("kimchi.RealBinding")
+      val underBinding = kotlinClass("kimchi.UnderBinding")
+
+      expectThat(mergedTestComponent)
+        .declaredProperties()
+        .hasSize(2)
+        .withElementAt(0) {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+        .withElementAt(1) {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(underBinding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+    }
+  }
+
+  @Test
+  fun `multiple @ContributesBinding with replaces excludes correctly`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.ContributesBinding
+        import me.tatarka.inject.annotations.Inject
+
+        interface Binding
+
+        @ContributesBinding(TestScope::class)
+        @ContributesBinding(TestScope2::class, replaces = [RealBinding2::class])
+        @Inject
+        class RealBinding : Binding
+
+        @ContributesBinding(TestScope2::class)
+        @Inject
+        class RealBinding2 : Binding
+      """.trimIndent(),
+      workingDir = workingDir,
+      expectExitCode = KotlinCompilation.ExitCode.OK,
+    ) {
+      val binding = kotlinClass("kimchi.Binding")
+      val realBinding = kotlinClass("kimchi.RealBinding")
+
+      expectThat(mergedTestComponent)
+        .declaredProperties()
+        .hasSize(1)
+        .withFirst {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+
+      expectThat(mergedTestComponent2)
+        .declaredProperties()
+        .hasSize(1)
+        .withFirst {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+    }
+  }
+
+  @Test
+  fun `multiple @ContributesBinding with rank excludes correctly`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.ContributesBinding
+        import me.tatarka.inject.annotations.Inject
+
+        interface Binding
+
+        @ContributesBinding(TestScope::class)
+        @ContributesBinding(TestScope2::class, rank = ContributesBinding.RANK_HIGHEST)
+        @Inject
+        class RealBinding : Binding
+
+        @ContributesBinding(TestScope2::class, rank = ContributesBinding.RANK_HIGH)
+        @Inject
+        class RealBinding2 : Binding
+      """.trimIndent(),
+      workingDir = workingDir,
+      expectExitCode = KotlinCompilation.ExitCode.OK,
+    ) {
+      val binding = kotlinClass("kimchi.Binding")
+      val realBinding = kotlinClass("kimchi.RealBinding")
+
+      expectThat(mergedTestComponent)
+        .declaredProperties()
+        .hasSize(1)
+        .withFirst {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(Provides::class)
+        }
+
+      expectThat(mergedTestComponent2)
+        .declaredProperties()
+        .hasSize(1)
         .withFirst {
           hasReceiverOf(realBinding)
           hasReturnTypeOf(binding)

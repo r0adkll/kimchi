@@ -22,6 +22,15 @@ val JvmCompilationResult.testScope: Class<*>
   get() = classLoader.loadClass("kimchi.TestScope")
 
 @Language("kotlin")
+val TestScope2 = """
+  package kimchi
+  object TestScope2
+""".trimIndent()
+
+val JvmCompilationResult.testScope2: KClass<*>
+  get() = kotlinClass("kimchi.TestScope2")
+
+@Language("kotlin")
 val TestParentScope = """
   package kimchi
   object TestParentScope
@@ -57,6 +66,22 @@ val JvmCompilationResult.testComponent: KClass<*>
 
 val JvmCompilationResult.mergedTestComponent: KClass<*>
   get() = kotlinClass("kimchi.merge.kimchi.MergedTestComponent")
+
+@Language("kotlin")
+val TestComponent2 = """
+  package kimchi
+  import com.r0adkll.kimchi.annotations.MergeComponent
+  @MergeComponent(TestScope2::class)
+  interface TestComponent2 {
+    companion object
+  }
+""".trimIndent()
+
+val JvmCompilationResult.testComponent2: KClass<*>
+  get() = kotlinClass("kimchi.TestComponent2")
+
+val JvmCompilationResult.mergedTestComponent2: KClass<*>
+  get() = kotlinClass("kimchi.merge.kimchi.MergedTestComponent2")
 
 @Language("kotlin")
 val SingleIn = """
@@ -136,9 +161,11 @@ val EnumKey = """
  */
 val commonTestSources = arrayOf(
   TestScope,
+  TestScope2,
   TestParentScope,
   TestQualifier,
   TestComponent,
+  TestComponent2,
   SingleIn,
   ByteKey,
   ShortKey,

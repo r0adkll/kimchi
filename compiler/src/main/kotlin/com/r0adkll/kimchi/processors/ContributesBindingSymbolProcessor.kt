@@ -12,6 +12,7 @@ import com.r0adkll.kimchi.annotations.ContributesBinding
 import com.r0adkll.kimchi.annotations.ContributesBindingAnnotation
 import com.r0adkll.kimchi.util.KimchiException
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
+import com.r0adkll.kimchi.util.ksp.isAnnotation
 import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
 import me.tatarka.inject.annotations.Inject
@@ -30,8 +31,11 @@ internal class ContributesBindingSymbolProcessor(
   override val annotation: KClass<*>
     get() = ContributesBinding::class
 
-  override fun getScope(element: KSClassDeclaration): ClassName {
-    return ContributesBindingAnnotation.from(element).scope
+  override fun getScopes(element: KSClassDeclaration): Set<ClassName> {
+    return element.annotations
+      .filter { it.isAnnotation(ContributesBinding::class) }
+      .map { ContributesBindingAnnotation.from(it).scope }
+      .toSet()
   }
 
   override fun validate(element: KSClassDeclaration) {
@@ -43,6 +47,22 @@ internal class ContributesBindingSymbolProcessor(
     if (hasInjectedParameters && !hasInjectAnnotation) {
       throw KimchiException(
         "@ContributesBinding annotated classes with injected constructor parameters require an '@Inject' annotation",
+        element,
+      )
+    }
+
+    val annotations = element.annotations
+      .filter { it.isAnnotation(ContributesBinding::class) }
+      .map { ContributesBindingAnnotation.from(it) }
+      .toList()
+
+    val uniqueAnnotations = annotations
+      .map { it.scope to it.boundType }
+      .toSet()
+
+    if (annotations.size != uniqueAnnotations.size) {
+      throw KimchiException(
+        "You cannot use @ContributesBinding multiple times for the same scope and same bound type",
         element,
       )
     }

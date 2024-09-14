@@ -32,8 +32,10 @@ internal class ContributesSubcomponentSymbolProcessor(
   override val annotation: KClass<*>
     get() = ContributesSubcomponent::class
 
-  override fun getScope(element: KSClassDeclaration): ClassName {
-    return ContributesSubcomponentAnnotation.from(element).parentScope
+  override fun getScopes(element: KSClassDeclaration): Set<ClassName> {
+    return setOf(
+      ContributesSubcomponentAnnotation.from(element).parentScope,
+    )
   }
 
   override fun validate(element: KSClassDeclaration) {

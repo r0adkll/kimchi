@@ -11,6 +11,7 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
 import com.r0adkll.kimchi.ClassScanner
+import com.r0adkll.kimchi.annotations.AnnotatedElement
 import com.r0adkll.kimchi.annotations.ContributesBinding
 import com.r0adkll.kimchi.annotations.ContributesBindingAnnotation
 import com.r0adkll.kimchi.annotations.ContributesMultibinding
@@ -28,8 +29,7 @@ import com.r0adkll.kimchi.util.ksp.ConstructorParameter
 import com.r0adkll.kimchi.util.ksp.addParameters
 import com.r0adkll.kimchi.util.ksp.component.MergeComponentDeclaration
 import com.r0adkll.kimchi.util.ksp.component.SubcomponentDeclaration
-import com.r0adkll.kimchi.util.ksp.findBindingTypeFor
-import com.r0adkll.kimchi.util.ksp.findQualifier
+import com.r0adkll.kimchi.util.ksp.findBindingType
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.hasCompanionObject
 import com.r0adkll.kimchi.util.ksp.isInterface
@@ -178,27 +178,63 @@ internal class MergeComponentSymbolProcessor(
     val subcomponentsReplaced = subcomponents
       .flatMap { it.annotation.replaces }
 
-    val modules = classScanner.findContributedClasses(
-      annotation = ContributesTo::class,
-      scope = mergingAnnotation.scope,
-    ).filterNot(mergingAnnotation::excludes)
+    val modules = classScanner
+      .findContributedClasses(
+        annotation = ContributesTo::class,
+        scope = mergingAnnotation.scope,
+      )
+      .filterNot(mergingAnnotation::excludes)
+      .map {
+        AnnotatedElement(
+          element = it,
+          annotation = ContributesToAnnotation.from(it, mergingAnnotation.scope),
+        )
+      }
 
-    val bindings = classScanner.findContributedClasses(
-      annotation = ContributesBinding::class,
-      scope = mergingAnnotation.scope,
-    ).filterNot(mergingAnnotation::excludes)
+    val bindings = classScanner
+      .findContributedClasses(
+        annotation = ContributesBinding::class,
+        scope = mergingAnnotation.scope,
+      )
+      .filterNot(mergingAnnotation::excludes)
+      .flatMap {
+        // We should treat each instance of @ContributesBinding as a unique annotated element to be added
+        // to the merged components. The hint generator takes care of validating uniqueness and we can
+        // make the unique assumption here.
+        ContributesBindingAnnotation.from(it, mergingAnnotation.scope)
+          .map { annotation ->
+            AnnotatedElement(
+              element = it,
+              annotation = annotation,
+            )
+          }
+      }
 
-    val multiBindings = classScanner.findContributedClasses(
-      annotation = ContributesMultibinding::class,
-      scope = mergingAnnotation.scope,
-    ).filterNot(mergingAnnotation::excludes)
+    val multiBindings = classScanner
+      .findContributedClasses(
+        annotation = ContributesMultibinding::class,
+        scope = mergingAnnotation.scope,
+      )
+      .filterNot(mergingAnnotation::excludes)
+      .flatMap {
+        // We should treat each instance of @ContributesMultibinding as a unique annotated element to be added
+        // to the merged components. The hint generator takes care of validating uniqueness and we can
+        // make the unique assumption here.
+        ContributesMultibindingAnnotation.from(it, mergingAnnotation.scope)
+          .map { annotation ->
+            AnnotatedElement(
+              element = it,
+              annotation = annotation,
+            )
+          }
+      }
 
     // Bindings and modules can replace each other so collect them all to use to filter
     // each other out later in the final component
     val replaced = sequence {
-      yieldAll(modules.map(ContributesToAnnotation::from))
-      yieldAll(bindings.map(ContributesBindingAnnotation::from))
-      yieldAll(multiBindings.map(ContributesMultibindingAnnotation::from))
+      yieldAll(modules.map { it.annotation })
+      yieldAll(bindings.map { it.annotation })
+      yieldAll(multiBindings.map { it.annotation })
     }.flatMap { it.replaces }
 
     // Build the kotlin poet code
@@ -208,7 +244,7 @@ internal class MergeComponentSymbolProcessor(
       element.containingFile
         ?.let { addOriginatingKSFile(it) }
       modules
-        .mapNotNull { it.containingFile }
+        .mapNotNull { it.element.containingFile }
         .forEach { addOriginatingKSFile(it) }
       subcomponents
         .mapNotNull { it.containingFile }
@@ -276,27 +312,27 @@ internal class MergeComponentSymbolProcessor(
       // Add all the contributed interfaces
       addSuperinterfaces(
         modules
-          .map { it.toClassName() }
+          .map { it.element.toClassName() }
           .filterNot { replaced.contains(it) }
           .toList(),
       )
 
       // Generate all the contributed bindings
       bindings
-        .filterNot { replaced.contains(it.toClassName()) }
+        .filterNot { replaced.contains(it.element.toClassName()) }
         .groupBy { binding ->
           // Qualifiers would make a binding unique, so be sure to account for it
-          val qualifier = binding.findQualifier()?.toAnnotationSpec()?.toString()
-          val boundType = binding.findBindingTypeFor(ContributesBinding::class).toClassName()
+          val qualifier = binding.qualifier()?.toAnnotationSpec()?.toString()
+          val boundType = binding.findBindingType()
           "$boundType${(qualifier?.let { "_$it" } ?: "")}"
         }
         .forEach { (_, group) ->
           if (group.size == 1) {
-            addBinding(group.first(), ContributesBinding::class)
+            addBinding(group.first())
           } else {
             // Check if there are multiple in the group with the same rank
             val rankSet = group
-              .map { ContributesBindingAnnotation.from(it).rank }
+              .map { it.annotation.rank }
               .toSet()
 
             // We could probably have a little more grace in this check where we check if ALL have the same
@@ -305,21 +341,21 @@ internal class MergeComponentSymbolProcessor(
             if (rankSet.size != group.size) {
               throw KimchiException(
                 """Multiple @ContributesBinding for the same boundType with the same rank were found:
-                  ${group.joinToString("\n") { "- ${it.qualifiedName!!.asString()}" }}
+                  ${group.joinToString("\n") { "- ${it.element.qualifiedName!!.asString()}" }}
                 """.trimIndent(),
               )
             } else {
-              val maxRankedBinding = group.maxBy { ContributesBindingAnnotation.from(it).rank }
-              addBinding(maxRankedBinding, ContributesBinding::class)
+              val maxRankedBinding = group.maxBy { it.annotation.rank }
+              addBinding(maxRankedBinding)
             }
           }
         }
 
       // Generate all the contributed multi-bindings
       multiBindings
-        .filterNot { replaced.contains(it.toClassName()) }
+        .filterNot { replaced.contains(it.element.toClassName()) }
         .forEach { multiBinding ->
-          addBinding(multiBinding, ContributesMultibinding::class)
+          addBinding(multiBinding)
         }
 
       // Now iterate through all the subcomponents, and add them
