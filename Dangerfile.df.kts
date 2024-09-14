@@ -7,6 +7,7 @@ danger(args) {
   val allSourceFiles = git.modifiedFiles + git.createdFiles
   val changelogChanged = allSourceFiles.contains("CHANGELOG.md")
   val sourceChanges = allSourceFiles.firstOrNull { it.contains("src") }
+  val testChanges = allSourceFiles.firstOrNull { it.contains("test") }
 
   onGitHub {
     val isTrivial = pullRequest.title.contains("#trivial")
@@ -20,6 +21,11 @@ danger(args) {
           "Please consider adding a note there and adhere to the " +
           "[Changelog Guidelines](https://github.com/Moya/contributors/blob/master/Changelog%20Guidelines.md).",
       )
+    }
+
+    // Testing
+    if (sourceChanges != null && testChanges == null) {
+      fail("any changes to library code should have accompanied tests. Please add tests to cover your changes.")
     }
 
     // Big PR Check

@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+## [0.4.0] - 2024-09-14
+
 ### Fixed
 
 - Fixed explicit parent components with @MergeComponent components - [#52](https://github.com/r0adkll/kimchi/pull/52)
