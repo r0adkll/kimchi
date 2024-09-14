@@ -12,7 +12,7 @@ import com.r0adkll.kimchi.util.ksp.valueAsClassNameList
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 
-data class ContributesSubcomponentAnnotation private constructor(
+class ContributesSubcomponentAnnotation private constructor(
   override val scope: ClassName,
   val parentScope: ClassName,
   private val excludes: List<ClassName>,

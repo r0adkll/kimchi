@@ -21,7 +21,7 @@ import strikt.api.expectThat
 import strikt.assertions.contains
 import strikt.assertions.isEqualTo
 
-class ContributesMultibindingTest {
+class MultibindingMapKeyTest {
 
   @TempDir(cleanup = CleanupMode.ON_SUCCESS)
   lateinit var workingDir: File
@@ -70,7 +70,8 @@ class ContributesMultibindingTest {
   }
 }
 
-val JvmCompilationResult.binding get() = kotlinClass("kimchi.Binding")
+private val JvmCompilationResult.binding get() = kotlinClass("kimchi.Binding")
+private val JvmCompilationResult.realBinding get() = kotlinClass("kimchi.RealBinding")
 
 val IntKeyTest = MapKeyTest(
   """

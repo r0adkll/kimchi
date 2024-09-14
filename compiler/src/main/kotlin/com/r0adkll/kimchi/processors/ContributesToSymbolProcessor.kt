@@ -11,6 +11,7 @@ import com.r0adkll.kimchi.HINT_CONTRIBUTES_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.annotations.ContributesToAnnotation
 import com.r0adkll.kimchi.util.KimchiException
+import com.r0adkll.kimchi.util.ksp.isAnnotation
 import com.r0adkll.kimchi.util.ksp.isInterface
 import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
@@ -29,8 +30,11 @@ internal class ContributesToSymbolProcessor(
   override val annotation: KClass<*>
     get() = ContributesTo::class
 
-  override fun getScope(element: KSClassDeclaration): ClassName {
-    return ContributesToAnnotation.from(element).scope
+  override fun getScopes(element: KSClassDeclaration): Set<ClassName> {
+    return element.annotations
+      .filter { it.isAnnotation(ContributesTo::class) }
+      .map { ContributesToAnnotation.from(it).scope }
+      .toSet()
   }
 
   override fun validate(element: KSClassDeclaration) {

@@ -112,7 +112,7 @@ private sealed class GeneratedProperty(
           declaration,
           name.substringBeforeLast(REFERENCE_SUFFIX),
         )
-        name.endsWith(SCOPE_SUFFIX) -> ScopeProperty(
+        name.substringBeforeLast("_").endsWith(SCOPE_SUFFIX) -> ScopeProperty(
           declaration,
           name.substringBeforeLast(SCOPE_SUFFIX),
         )
@@ -121,8 +121,3 @@ private sealed class GeneratedProperty(
     }
   }
 }
-
-private data class CacheKey(
-  val fqName: ClassName,
-  val moduleHash: Int,
-)

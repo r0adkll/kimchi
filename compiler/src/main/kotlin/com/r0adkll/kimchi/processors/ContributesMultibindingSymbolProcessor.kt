@@ -10,6 +10,8 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.r0adkll.kimchi.HINT_MULTIBINDING_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesMultibinding
 import com.r0adkll.kimchi.annotations.ContributesMultibindingAnnotation
+import com.r0adkll.kimchi.util.KimchiException
+import com.r0adkll.kimchi.util.ksp.isAnnotation
 import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
 
@@ -27,7 +29,28 @@ internal class ContributesMultibindingSymbolProcessor(
   override val annotation: KClass<*>
     get() = ContributesMultibinding::class
 
-  override fun getScope(element: KSClassDeclaration): ClassName {
-    return ContributesMultibindingAnnotation.from(element).scope
+  override fun getScopes(element: KSClassDeclaration): Set<ClassName> {
+    return element.annotations
+      .filter { it.isAnnotation(ContributesMultibinding::class) }
+      .map { ContributesMultibindingAnnotation.from(it).scope }
+      .toSet()
+  }
+
+  override fun validate(element: KSClassDeclaration) {
+    val annotations = element.annotations
+      .filter { it.isAnnotation(ContributesMultibinding::class) }
+      .map { ContributesMultibindingAnnotation.from(it) }
+      .toList()
+
+    val uniqueAnnotations = annotations
+      .map { it.scope to it.boundType }
+      .toSet()
+
+    if (annotations.size != uniqueAnnotations.size) {
+      throw KimchiException(
+        "You cannot use @ContributesMultibinding multiple times for the same scope and same bound type",
+        element,
+      )
+    }
   }
 }
