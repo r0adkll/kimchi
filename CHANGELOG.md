@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed non-primitive custom keys not generating correctly - [#55](https://github.com/r0adkll/kimchi/pull/55)
 - Fixed name collisions with generated hint classes - [#56](https://github.com/r0adkll/kimchi/pull/56)
 
+### Added
+
+- Support for multiple uses of `@ContributesBinding`, `@ContributesMultibinding`, and `@ContributesTo` on single elements - [#59](https://github.com/r0adkll/kimchi/pull/59)
+
 ## [0.3.1] - 2024-09-10
 
 ### Fixed
