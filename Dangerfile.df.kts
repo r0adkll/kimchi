@@ -9,7 +9,6 @@ danger(args) {
   val sourceChanges = allSourceFiles.firstOrNull { it.contains("src") }
   val testChanges = allSourceFiles.firstOrNull { it.contains("test") }
 
-  message("First Author: ${git.commits.firstOrNull()?.author?.name}")
   val isRenovatePr = git.commits.firstOrNull()?.author?.name == "renovate"
 
   onGitHub {
