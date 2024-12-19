@@ -21,10 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+## [0.5.0] - 2024-12-19
+
 ### Added
 
-- Add support for linuxArm64/x64 to annotations - [#91](https://github.com/r0adkll/kimchi/pull/91) - [@bwalter089](https://github.com/bwalter089)
-- Provide contributed subcomponent factories on its parent's graph - [#94](https://github.com/r0adkll/kimchi/pull/94)
+- Add support for linuxArm64/x64 to annotations from [@bwalter089](https://github.com/bwalter089) - [#91](https://github.com/r0adkll/kimchi/pull/91)
+- Provide contributed subcomponent factories on its parents graph - [#94](https://github.com/r0adkll/kimchi/pull/94)
 
 ### Fixed
 
@@ -36,15 +38,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - 2024-09-14
 
+### Added
+
+- Support for multiple uses of `@ContributesBinding`, `@ContributesMultibinding`, and `@ContributesTo` on single elements - [#59](https://github.com/r0adkll/kimchi/pull/59)
+
 ### Fixed
 
 - Fixed explicit parent components with @MergeComponent components - [#52](https://github.com/r0adkll/kimchi/pull/52)
 - Fixed non-primitive custom keys not generating correctly - [#55](https://github.com/r0adkll/kimchi/pull/55)
 - Fixed name collisions with generated hint classes - [#56](https://github.com/r0adkll/kimchi/pull/56)
-
-### Added
-
-- Support for multiple uses of `@ContributesBinding`, `@ContributesMultibinding`, and `@ContributesTo` on single elements - [#59](https://github.com/r0adkll/kimchi/pull/59)
 
 ## [0.3.1] - 2024-09-10
 
