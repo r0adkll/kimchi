@@ -109,10 +109,11 @@ data class MapKeyValue(private val valueArgument: KSValueArgument) {
     )
 
     val format = when (value) {
+      is Long -> "%LL"
+
       is Byte,
       is Short,
       is Int,
-      is Long,
       is Float,
       is Double,
       is Boolean,
