@@ -9,13 +9,20 @@ danger(args) {
   val sourceChanges = allSourceFiles.firstOrNull { it.contains("src") }
   val testChanges = allSourceFiles.firstOrNull { it.contains("test") }
 
+  message("First Author: ${git.commits.firstOrNull()?.author?.name}")
+  val isRenovatePr = git.commits.firstOrNull()?.author?.name == "renovate"
+
   onGitHub {
     val isTrivial = pullRequest.title.contains("#trivial")
 
-    message("This PR has been checked by Danger")
+    if (isRenovatePr) {
+      message("Renovate PR - Ignoring checks")
+    } else {
+      message("This PR has been checked by Danger")
+    }
 
     // Changelog
-    if (!isTrivial && !changelogChanged) {
+    if (!isTrivial && !isRenovatePr && !changelogChanged) {
       fail(
         "any changes to library code should be reflected in the Changelog.\n\n" +
           "Please add your change there and adhere to the " +
@@ -24,7 +31,7 @@ danger(args) {
     }
 
     // Testing
-    if (sourceChanges != null && testChanges == null) {
+    if (!isRenovatePr && sourceChanges != null && testChanges == null) {
       fail("any changes to library code should have accompanied tests. Please add tests to cover your changes.")
     }
 

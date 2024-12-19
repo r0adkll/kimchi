@@ -12,6 +12,7 @@ jobs:
   danger-pr:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
+    permissions: read-all
     name: "danger-pr"
     container:
       image: docker://ghcr.io/danger/danger-kotlin:1.3.1
