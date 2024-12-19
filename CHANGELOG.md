@@ -23,11 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add support for linuxArm64/x64 to annotations - [#91](https://github.com/r0adkll/kimchi/pull/91) - @bwalter089
+- Add support for linuxArm64/x64 to annotations - [#91](https://github.com/r0adkll/kimchi/pull/91) - [@bwalter089](https://github.com/bwalter089)
+- Provide contributed subcomponent factories on its parent's graph - [#94](https://github.com/r0adkll/kimchi/pull/94)
 
 ### Fixed
 
 - Updated Danger check to be more sensitive about [CHANGELOG.md] changes - [#92](https://github.com/r0adkll/kimchi/pull/92)
+
+### Other Notes & Contributions
+
+- Special thanks to [@bwalter089](https://github.com/bwalter089) for contributing to this release
 
 ## [0.4.0] - 2024-09-14
 
