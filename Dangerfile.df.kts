@@ -5,7 +5,7 @@ import systems.danger.kotlin.*
 danger(args) {
 
   val allSourceFiles = git.modifiedFiles + git.createdFiles
-  val changelogChanged = allSourceFiles.contains("CHANGELOG.md")
+  val changelogChanged = allSourceFiles.any { it.contains("CHANGELOG.md") }
   val sourceChanges = allSourceFiles.firstOrNull { it.contains("src") }
   val testChanges = allSourceFiles.firstOrNull { it.contains("test") }
 
@@ -15,10 +15,10 @@ danger(args) {
     message("This PR has been checked by Danger")
 
     // Changelog
-    if (!isTrivial && !changelogChanged && sourceChanges != null) {
-      warn(
+    if (!isTrivial && !changelogChanged) {
+      error(
         "any changes to library code should be reflected in the Changelog.\n\n" +
-          "Please consider adding a note there and adhere to the " +
+          "Please add your change there and adhere to the " +
           "[Changelog Guidelines](https://github.com/Moya/contributors/blob/master/Changelog%20Guidelines.md).",
       )
     }
