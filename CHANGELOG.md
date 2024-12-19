@@ -21,6 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+### Added
+
+- Add support for linuxArm64/x64 to annotations - [#91](https://github.com/r0adkll/kimchi/pull/91) - @bwalter089
+
+### Fixed
+
+- Updated Danger check to be more sensitive about [CHANGELOG.md] changes - [#92](https://github.com/r0adkll/kimchi/pull/92)
+
 ## [0.4.0] - 2024-09-14
 
 ### Fixed
