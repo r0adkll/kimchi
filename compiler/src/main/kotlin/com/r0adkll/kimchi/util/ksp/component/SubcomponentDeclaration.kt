@@ -99,6 +99,14 @@ class SubcomponentDeclaration(
     }
   }
 
+  fun createFactoryProvidesFunction(): FunSpec {
+    return FunSpec.buildFun("provide${simpleName.asString()}Factory") {
+      addAnnotation(Provides::class)
+      returns(factoryClass.toClassName())
+      addStatement("return this")
+    }
+  }
+
   /**
    * A custom overlay of [KSClassDeclaration] to provide a unified way of accessing
    * the specific components and assumptions of declarations annotated with

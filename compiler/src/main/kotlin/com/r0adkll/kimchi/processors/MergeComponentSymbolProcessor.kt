@@ -369,6 +369,9 @@ internal class MergeComponentSymbolProcessor(
           // Generate the factory creation function overload to generate this subcomponent
           addFunction(subcomponent.createFactoryFunctionOverload(isGenerateCompanionExtensionsEnabled))
 
+          // Add provides function that exposes the factory as a dependency
+          addFunction(subcomponent.createFactoryProvidesFunction())
+
           // Generate the Subcomponent
           addType(
             generateComponent(

@@ -4,10 +4,12 @@ package com.r0adkll.kimchi.processors
 
 import com.r0adkll.kimchi.compileKimchiWithTestSources
 import com.r0adkll.kimchi.hasAnnotation
+import com.r0adkll.kimchi.hasReturnType
 import com.r0adkll.kimchi.implements
 import com.r0adkll.kimchi.kotlinClass
 import com.r0adkll.kimchi.mergedTestComponent
 import com.r0adkll.kimchi.singleIn
+import com.r0adkll.kimchi.withFunction
 import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
 import org.junit.jupiter.api.Test
@@ -144,6 +146,38 @@ class ContributesSubcomponentTest {
 
       expectThat(mergedTestSubcomponent)
         .implements(testSubcomponent)
+    }
+  }
+
+  @Test
+  fun `contributed subcomponents generate provide functions for its factory on its parent`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import com.r0adkll.kimchi.annotations.ContributesSubcomponent
+
+        object ChildScope
+
+        @ContributesSubcomponent(
+          scope = ChildScope::class,
+          parentScope = TestScope::class,
+        )
+        interface TestSubcomponent {
+
+          @ContributesSubcomponent.Factory
+          interface Factory {
+            fun create() : TestSubcomponent
+          }
+        }
+      """.trimIndent(),
+      workingDir = workingDir,
+    ) {
+      val testSubcomponentFactory = kotlinClass("kimchi.TestSubcomponent\$Factory")
+      expectThat(mergedTestComponent)
+        .withFunction("provideTestSubcomponentFactory") {
+          hasReturnType(testSubcomponentFactory)
+        }
     }
   }
 
