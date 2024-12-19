@@ -16,7 +16,7 @@ danger(args) {
 
     // Changelog
     if (!isTrivial && !changelogChanged) {
-      error(
+      fail(
         "any changes to library code should be reflected in the Changelog.\n\n" +
           "Please add your change there and adhere to the " +
           "[Changelog Guidelines](https://github.com/Moya/contributors/blob/master/Changelog%20Guidelines.md).",
