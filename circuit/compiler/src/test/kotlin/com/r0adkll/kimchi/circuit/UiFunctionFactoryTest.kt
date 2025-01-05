@@ -26,7 +26,7 @@ import strikt.assertions.isNotNull
 
 class UiFunctionFactoryTest {
 
-  @TempDir(cleanup = CleanupMode.NEVER)
+  @TempDir(cleanup = CleanupMode.ON_SUCCESS)
   lateinit var workingDir: File
 
   @Test
