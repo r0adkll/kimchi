@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+## [0.5.1] - 2025-01-05
+
 ### Fixed
 
 - Fixed Circuit presenter code generator - [#98](https://github.com/r0adkll/kimchi/pull/98)
