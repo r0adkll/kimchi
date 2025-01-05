@@ -1,3 +1,5 @@
+// Copyright (C) 2025 r0adkll
+// SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.circuit
 
 import com.r0adkll.kimchi.annotations.ContributesTo
@@ -68,7 +70,7 @@ class PresenterClassFactoryTest {
         .isNotNull()
         .parameter(0)
         .isTypeOf(Function3::class)
-        .with({type.arguments}) {
+        .with({ type.arguments }) {
           withElementAt(0) {
             get { type!!.classifier } isEqualTo testScreen
           }
