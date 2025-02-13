@@ -2,7 +2,7 @@
 agp = "8.8.1"
 androidx-activityCompose = "1.9.3"
 autoservice = "1.1.1"
-circuit = "0.26.0"
+circuit = "0.26.1"
 compose-multiplatform = "1.7.3"
 dokka = "2.0.0"
 junit5 = "5.11.4"
