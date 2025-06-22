@@ -13,7 +13,7 @@ kotlinpoet = "2.2.0"
 ksp = "2.1.10-1.0.31"
 ksp-autoservce = "1.2.0"
 ktlint = "0.49.1"
-mavenPublish = "0.32.0"
+mavenPublish = "0.33.0"
 spotless = "7.0.4"
 strikt = "0.35.1"
 
