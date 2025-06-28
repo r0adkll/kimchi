@@ -3,11 +3,16 @@
 plugins {
   kotlin("jvm")
   alias(libs.plugins.ksp)
+  id("jvm-test-suite")
 }
 
 java {
   sourceCompatibility = JavaVersion.VERSION_17
   targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+  jvmToolchain(17)
 }
 
 dependencies {
@@ -22,8 +27,10 @@ dependencies {
   testImplementation(libs.strikt.core)
 }
 
-tasks {
-  test {
-    useJUnitPlatform()
+testing {
+  suites {
+    named<JvmTestSuite>("test") {
+      useJUnitJupiter(libs.versions.junit5)
+    }
   }
 }

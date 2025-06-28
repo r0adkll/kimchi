@@ -55,7 +55,6 @@ addKspDependencyForAllTargets(projects.compiler)
 addKspDependencyForAllTargets(projects.circuit.compiler)
 
 composeCompiler {
-  enableStrongSkippingMode.set(true)
   includeSourceInformation.set(true)
 }
 

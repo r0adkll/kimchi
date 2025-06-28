@@ -21,6 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+## [0.6.0] - 2025-06-27
+
+### Changed
+
+- Updated Kotlin to 2.2.0
+- Updated KSP to 2.2.0-2.0.1
+- Updated kotlin-inject 0.8.0
+
 ## [0.5.1] - 2025-01-05
 
 ### Fixed

@@ -13,6 +13,7 @@ import com.r0adkll.kimchi.kotlinClass
 import com.r0adkll.kimchi.mergedTestComponent
 import com.r0adkll.kimchi.mergedTestComponent2
 import com.r0adkll.kimchi.testQualifier
+import com.r0adkll.kimchi.testQualifierWithClass
 import com.r0adkll.kimchi.withFunction
 import com.tschuchort.compiletesting.KotlinCompilation
 import java.io.File
@@ -29,7 +30,7 @@ import strikt.assertions.withFirst
 
 class ContributedBindingTest {
 
-  @TempDir(cleanup = CleanupMode.ON_SUCCESS)
+  @TempDir(cleanup = CleanupMode.NEVER)
   lateinit var workingDir: File
 
   @Test
@@ -302,6 +303,48 @@ class ContributedBindingTest {
           hasReturnTypeOf(binding)
           getter()
             .hasAnnotation(testQualifier)
+        }
+    }
+  }
+
+  @Test
+  fun `qualifier with class does not cause duplicate bindings`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import me.tatarka.inject.annotations.Inject
+        import com.r0adkll.kimchi.annotations.ContributesBinding
+
+        interface Binding
+
+        @ContributesBinding(TestScope::class)
+        @Inject
+        class RealBinding : Binding
+
+        @TestQualifierWithClass(TestScope::class)
+        @ContributesBinding(TestScope::class)
+        @Inject
+        class RealBinding2 : Binding
+      """.trimIndent(),
+      workingDir = workingDir,
+    ) {
+      println(workingDir.absolutePath)
+      val binding = kotlinClass("kimchi.Binding")
+      val realBinding = kotlinClass("kimchi.RealBinding")
+      val realBinding2 = kotlinClass("kimchi.RealBinding2")
+      expectThat(mergedTestComponent)
+        .declaredProperties()
+        .hasSize(2)
+        .withElementAt(0) {
+          hasReceiverOf(realBinding)
+          hasReturnTypeOf(binding)
+        }
+        .withElementAt(1) {
+          hasReceiverOf(realBinding2)
+          hasReturnTypeOf(binding)
+          getter()
+            .hasAnnotation(testQualifierWithClass)
         }
     }
   }

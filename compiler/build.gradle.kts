@@ -4,6 +4,7 @@ plugins {
   kotlin("jvm")
   alias(libs.plugins.mavenPublish)
   alias(libs.plugins.ksp)
+  id("jvm-test-suite")
 }
 
 kotlin {
@@ -34,7 +35,14 @@ dependencies {
 
 tasks {
   test {
-    useJUnitPlatform()
     maxHeapSize = "2g"
+  }
+}
+
+testing {
+  suites {
+    named<JvmTestSuite>("test") {
+      useJUnitJupiter(libs.versions.junit5)
+    }
   }
 }

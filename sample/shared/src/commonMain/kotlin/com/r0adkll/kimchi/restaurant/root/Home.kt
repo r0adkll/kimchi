@@ -6,11 +6,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.slack.circuit.backstack.SaveableBackStack
 import com.slack.circuit.foundation.NavigableCircuitContent
 import com.slack.circuit.runtime.Navigator
-import com.slack.circuitx.gesturenavigation.GestureNavigationDecoration
+import com.slack.circuitx.gesturenavigation.GestureNavigationDecorationFactory
 
 @Composable
 internal fun Home(
@@ -24,9 +25,11 @@ internal fun Home(
     NavigableCircuitContent(
       navigator = navigator,
       backStack = backstack,
-      decoration = GestureNavigationDecoration(
-        onBackInvoked = navigator::pop,
-      ),
+      decoratorFactory = remember(navigator) {
+        GestureNavigationDecorationFactory(
+          onBackInvoked = navigator::pop,
+        )
+      },
       modifier = Modifier
         .padding(paddingValues)
         .fillMaxHeight(),

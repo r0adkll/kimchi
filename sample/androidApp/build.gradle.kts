@@ -1,3 +1,7 @@
+// Copyright (C) 2025 r0adkll
+// SPDX-License-Identifier: Apache-2.0
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 // Copyright (C) 2024 r0adkll
 // SPDX-License-Identifier: Apache-2.0
 plugins {
@@ -9,12 +13,12 @@ plugins {
 
 android {
   namespace = "com.r0adkll.kimchi.restaurant.android"
-  compileSdk = 34
+  compileSdk = 36
 
   defaultConfig {
     applicationId = "com.r0adkll.kimchi.restaurant.android"
     minSdk = 26
-    targetSdk = 34
+    targetSdk = 36
     versionCode = 1
     versionName = "1.0"
   }
@@ -39,8 +43,11 @@ android {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
-  kotlinOptions {
-    jvmTarget = "17"
+}
+
+kotlin {
+  compilerOptions {
+    jvmTarget.set(JvmTarget.JVM_17)
   }
 }
 

@@ -4,6 +4,7 @@ plugins {
   kotlin("jvm")
   alias(libs.plugins.mavenPublish)
   alias(libs.plugins.ksp)
+  id("jvm-test-suite")
 }
 
 kotlin {
@@ -34,8 +35,10 @@ dependencies {
   testImplementation(libs.strikt.core)
 }
 
-tasks {
-  test {
-    useJUnitPlatform()
+testing {
+  suites {
+    named<JvmTestSuite>("test") {
+      useJUnitJupiter(libs.versions.junit5)
+    }
   }
 }

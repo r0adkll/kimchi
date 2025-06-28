@@ -82,7 +82,7 @@ class HintSymbolProcessorTest {
 }
 
 class HintTest(
-  @Language("kotlin") val source: String,
+  @param:Language("kotlin") val source: String,
   val expectedExitCode: KotlinCompilation.ExitCode,
   val expectedClass: JvmCompilationResult.() -> Class<*>,
   val expectedHint: JvmCompilationResult.() -> KClass<*>,

@@ -57,7 +57,6 @@ addKspDependencyForAllTargets(libs.kotlininject.ksp)
 addKspDependencyForAllTargets(projects.compiler)
 
 composeCompiler {
-  enableStrongSkippingMode.set(true)
   includeSourceInformation.set(true)
 }
 
