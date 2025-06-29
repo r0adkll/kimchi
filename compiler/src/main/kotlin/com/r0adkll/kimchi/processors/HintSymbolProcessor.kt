@@ -7,6 +7,7 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.r0adkll.kimchi.HINT_PACKAGE
 import com.r0adkll.kimchi.REFERENCE_SUFFIX
 import com.r0adkll.kimchi.SCOPE_SUFFIX
 import com.r0adkll.kimchi.util.buildFile
@@ -28,7 +29,6 @@ import kotlin.reflect.KClass
  */
 internal abstract class HintSymbolProcessor(
   protected val env: SymbolProcessorEnvironment,
-  private val hintPackageName: String,
 ) : SymbolProcessor {
 
   /**
@@ -76,7 +76,7 @@ internal abstract class HintSymbolProcessor(
 
     val scopes = getScopes(element)
 
-    return FileSpec.buildFile(hintPackageName, fileName) {
+    return FileSpec.buildFile(HINT_PACKAGE, fileName) {
       // Reference Hint
       addProperty(
         PropertySpec

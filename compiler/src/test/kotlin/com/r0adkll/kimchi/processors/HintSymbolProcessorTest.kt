@@ -2,10 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.processors
 
-import com.r0adkll.kimchi.HINT_BINDING_PACKAGE
-import com.r0adkll.kimchi.HINT_CONTRIBUTES_PACKAGE
-import com.r0adkll.kimchi.HINT_MULTIBINDING_PACKAGE
-import com.r0adkll.kimchi.HINT_SUBCOMPONENT_PACKAGE
+import com.r0adkll.kimchi.HINT_PACKAGE
 import com.r0adkll.kimchi.compileKimchiWithTestSources
 import com.r0adkll.kimchi.getHint
 import com.r0adkll.kimchi.getHintScope
@@ -87,7 +84,7 @@ class HintTest(
   val expectedClass: JvmCompilationResult.() -> Class<*>,
   val expectedHint: JvmCompilationResult.() -> KClass<*>,
   val expectedScope: JvmCompilationResult.() -> KClass<*>,
-  val hintPackage: String,
+  val hintPackage: String = HINT_PACKAGE,
 ) {
   override fun toString(): String {
     return "HintTest($hintPackage)"
@@ -113,7 +110,6 @@ val contributesBindingHintTest = HintTest(
   { classLoader.loadClass("kimchi.RealTestBinding") },
   { classLoader.loadClass("kimchi.RealTestBinding").kotlin },
   { testScope.kotlin },
-  HINT_BINDING_PACKAGE,
 )
 
 val contributesMultiBindingHintTest = HintTest(
@@ -134,7 +130,6 @@ val contributesMultiBindingHintTest = HintTest(
   { classLoader.loadClass("kimchi.RealTestBinding") },
   { classLoader.loadClass("kimchi.RealTestBinding").kotlin },
   { testScope.kotlin },
-  HINT_MULTIBINDING_PACKAGE,
 )
 
 val contributesToHintTest = HintTest(
@@ -151,7 +146,6 @@ val contributesToHintTest = HintTest(
   { classLoader.loadClass("kimchi.TestModule") },
   { classLoader.loadClass("kimchi.TestModule").kotlin },
   { testScope.kotlin },
-  HINT_CONTRIBUTES_PACKAGE,
 )
 
 val contributesSubcomponentHintTest = HintTest(
@@ -177,5 +171,4 @@ val contributesSubcomponentHintTest = HintTest(
   { classLoader.loadClass("kimchi.TestSubcomponent") },
   { classLoader.loadClass("kimchi.TestSubcomponent").kotlin },
   { testParentScope.kotlin },
-  HINT_SUBCOMPONENT_PACKAGE,
 )
