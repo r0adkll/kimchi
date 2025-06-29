@@ -7,7 +7,6 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.r0adkll.kimchi.HINT_SUBCOMPONENT_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesSubcomponent
 import com.r0adkll.kimchi.annotations.ContributesSubcomponentAnnotation
 import com.r0adkll.kimchi.util.KimchiException
@@ -20,7 +19,7 @@ import me.tatarka.inject.annotations.Component
 
 internal class ContributesSubcomponentSymbolProcessor(
   env: SymbolProcessorEnvironment,
-) : HintSymbolProcessor(env, HINT_SUBCOMPONENT_PACKAGE) {
+) : HintSymbolProcessor(env) {
 
   @AutoService(SymbolProcessorProvider::class)
   class Provider : SymbolProcessorProvider {

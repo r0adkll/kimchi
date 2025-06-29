@@ -140,7 +140,7 @@ class ContributesSubcomponentTest {
     ) {
       val testSubcomponent = kotlinClass("kimchi.TestSubcomponent")
       val testSubcomponentFactory = kotlinClass("kimchi.TestSubcomponent\$Factory")
-      val mergedTestSubcomponent = kotlinClass("kimchi.merge.kimchi.MergedTestComponent\$MergedTestSubcomponent")
+      val mergedTestSubcomponent = kotlinClass("kimchi.merge.kimchi.MergedTestSubcomponent")
       expectThat(mergedTestComponent)
         .implements(testSubcomponentFactory)
 
@@ -206,7 +206,7 @@ class ContributesSubcomponentTest {
       """.trimIndent(),
       workingDir = workingDir,
     ) {
-      val mergedTestSubcomponent = kotlinClass("kimchi.merge.kimchi.MergedTestComponent\$MergedTestSubcomponent")
+      val mergedTestSubcomponent = kotlinClass("kimchi.merge.kimchi.MergedTestSubcomponent")
 
       // Assert that any scope annotation applied to our components isn't also duplicated on the generated merged
       // implementation. Due to kotlin-inject's handling of inheritance doing so will error with "already applied"

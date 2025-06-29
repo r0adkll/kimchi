@@ -9,20 +9,13 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.r0adkll.kimchi.GeneratedProperty.ReferenceProperty
 import com.r0adkll.kimchi.GeneratedProperty.ScopeProperty
-import com.r0adkll.kimchi.annotations.ContributesBinding
-import com.r0adkll.kimchi.annotations.ContributesMultibinding
-import com.r0adkll.kimchi.annotations.ContributesSubcomponent
-import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.util.ksp.findActualType
+import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.squareup.kotlinpoet.ClassName
 import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
-internal const val HINT_PREFIX = "kimchi.merge.hint"
-internal const val HINT_CONTRIBUTES_PACKAGE = "$HINT_PREFIX.merge"
-internal const val HINT_BINDING_PACKAGE = "$HINT_PREFIX.binding"
-internal const val HINT_MULTIBINDING_PACKAGE = "$HINT_PREFIX.multibinding"
-internal const val HINT_SUBCOMPONENT_PACKAGE = "$HINT_PREFIX.subcomponent"
+internal const val HINT_PACKAGE = "kimchi.merge.hint"
 
 internal const val REFERENCE_SUFFIX = "_reference"
 internal const val SCOPE_SUFFIX = "_scope"
@@ -33,22 +26,22 @@ class ClassScanner(
   private val logger: KSPLogger,
 ) {
 
-  /**
-   * TODO: Add some form of caching for this
-   */
+  private val contributedCache = mutableMapOf<String, List<ReferenceProperty>>()
+
   fun findContributedClasses(
     annotation: KClass<*>,
     scope: ClassName,
   ): Sequence<KSClassDeclaration> {
-    val packageName = when (annotation) {
-      ContributesBinding::class -> HINT_BINDING_PACKAGE
-      ContributesMultibinding::class -> HINT_MULTIBINDING_PACKAGE
-      ContributesTo::class -> HINT_CONTRIBUTES_PACKAGE
-      ContributesSubcomponent::class -> HINT_SUBCOMPONENT_PACKAGE
-      else -> throw IllegalArgumentException("Unrecognized annotation to look up")
+    // Check cache for contributed elements with [annotation] for the given [scope]
+    val cachedProperties = contributedCache[scope.canonicalName]
+    if (cachedProperties != null && cachedProperties.isNotEmpty()) {
+      return cachedProperties
+        .mapNotNull { it.classDeclaration }
+        .filter { it.hasAnnotation(annotation) }
+        .asSequence()
     }
 
-    val propertyGroups = resolver.getDeclarationsFromPackage(packageName)
+    val propertyGroups = resolver.getDeclarationsFromPackage(HINT_PACKAGE)
       .filterIsInstance<KSPropertyDeclaration>()
       .mapNotNull { property ->
         GeneratedProperty.fromDeclaration(property)
@@ -56,9 +49,8 @@ class ClassScanner(
       .groupBy { it.baseName }
       .values
 
-    return propertyGroups
-      .asSequence()
-      .mapNotNull { properties ->
+    val scopedReferences = propertyGroups
+      .flatMap { properties ->
         val reference = properties
           .filterIsInstance<ReferenceProperty>()
           .singleOrNull()
@@ -69,22 +61,24 @@ class ClassScanner(
           .ifEmpty {
             throw IllegalStateException("Couldn't find any scope for a generated hint: ${properties[0].baseName}.")
           }
-          .mapNotNull {
-            it.declaration.type.resolve().arguments.first().type
-              ?.findActualType()
-              ?.qualifiedName
-              ?.asString()
-          }
+          .mapNotNull { it.canonicalScopeName }
 
-        // Look for the right scope even before resolving the class and resolving all its super
-        // types.
-        if (scope.canonicalName !in scopes) return@mapNotNull null
+        scopes.map { scope ->
+          scope to reference
+        }
+      }.groupBy(
+        keySelector = { it.first },
+        valueTransform = { it.second },
+      )
 
-        reference
-          .declaration.type.resolve()
-          .arguments.first().type
-          ?.findActualType()
-      }
+    contributedCache.clear()
+    contributedCache.putAll(scopedReferences)
+
+    return scopedReferences[scope.canonicalName]
+      ?.mapNotNull { it.classDeclaration }
+      ?.filter { it.hasAnnotation(annotation) }
+      ?.asSequence()
+      ?: emptySequence()
   }
 }
 
@@ -96,12 +90,27 @@ private sealed class GeneratedProperty(
   class ReferenceProperty(
     declaration: KSPropertyDeclaration,
     baseName: String,
-  ) : GeneratedProperty(declaration, baseName)
+  ) : GeneratedProperty(declaration, baseName) {
+
+    val classDeclaration: KSClassDeclaration? by lazy {
+      declaration.type.resolve()
+        .arguments.first().type
+        ?.findActualType()
+    }
+  }
 
   class ScopeProperty(
     declaration: KSPropertyDeclaration,
     baseName: String,
-  ) : GeneratedProperty(declaration, baseName)
+  ) : GeneratedProperty(declaration, baseName) {
+
+    val canonicalScopeName: String? by lazy {
+      declaration.type.resolve().arguments.first().type
+        ?.findActualType()
+        ?.qualifiedName
+        ?.asString()
+    }
+  }
 
   companion object {
     fun fromDeclaration(declaration: KSPropertyDeclaration): GeneratedProperty? {

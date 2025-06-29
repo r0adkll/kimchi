@@ -52,6 +52,18 @@ val JvmCompilationResult.testQualifier: KClass<*>
   get() = kotlinClass("kimchi.TestQualifier")
 
 @Language("kotlin")
+val TestQualifierWithClass = """
+  package kimchi
+  import kotlin.reflect.KClass
+  import me.tatarka.inject.annotations.Qualifier
+  @Qualifier
+  annotation class TestQualifierWithClass(val value: KClass<*>)
+""".trimIndent()
+
+val JvmCompilationResult.testQualifierWithClass: KClass<*>
+  get() = kotlinClass("kimchi.TestQualifierWithClass")
+
+@Language("kotlin")
 val TestComponent = """
   package kimchi
   import com.r0adkll.kimchi.annotations.MergeComponent
@@ -164,6 +176,7 @@ val commonTestSources = arrayOf(
   TestScope2,
   TestParentScope,
   TestQualifier,
+  TestQualifierWithClass,
   TestComponent,
   TestComponent2,
   SingleIn,

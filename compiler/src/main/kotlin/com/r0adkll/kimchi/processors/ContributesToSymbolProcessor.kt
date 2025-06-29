@@ -7,7 +7,6 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.r0adkll.kimchi.HINT_CONTRIBUTES_PACKAGE
 import com.r0adkll.kimchi.annotations.ContributesTo
 import com.r0adkll.kimchi.annotations.ContributesToAnnotation
 import com.r0adkll.kimchi.util.KimchiException
@@ -18,7 +17,7 @@ import kotlin.reflect.KClass
 
 internal class ContributesToSymbolProcessor(
   env: SymbolProcessorEnvironment,
-) : HintSymbolProcessor(env, HINT_CONTRIBUTES_PACKAGE) {
+) : HintSymbolProcessor(env) {
 
   @AutoService(SymbolProcessorProvider::class)
   class Provider : SymbolProcessorProvider {

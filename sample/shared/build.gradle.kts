@@ -47,6 +47,7 @@ kotlin {
       api(compose.material3)
       api(compose.materialIconsExtended)
     }
+
     commonTest.dependencies {
       implementation(libs.kotlin.test)
     }
@@ -57,7 +58,6 @@ addKspDependencyForAllTargets(libs.kotlininject.ksp)
 addKspDependencyForAllTargets(projects.compiler)
 
 composeCompiler {
-  enableStrongSkippingMode.set(true)
   includeSourceInformation.set(true)
 }
 

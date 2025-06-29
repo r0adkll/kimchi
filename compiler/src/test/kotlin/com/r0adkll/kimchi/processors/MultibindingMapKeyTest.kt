@@ -223,7 +223,7 @@ val EnumKeyTest = MapKeyTest(
 )
 
 data class MapKeyTest(
-  @Language("kotlin") val source: String,
+  @param:Language("kotlin") val source: String,
   val expectedMapKey: JvmCompilationResult.() -> Any,
   val expectedMapKeyFunctionSuffix: JvmCompilationResult.() -> String = { expectedMapKey().toString() },
 )

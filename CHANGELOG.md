@@ -21,6 +21,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other Notes & Contributions
 -->
 
+## [0.6.0] - 2025-06-27
+
+### Added
+
+- New property `com.r0adkll.kimchi.generateContributedBindingProvisions` that will automatically generate exposing provisions for types bound with `@ContributesBinding` - [#138](https://github.com/r0adkll/kimchi/pull/138)
+
+### Changed
+
+- Updated Kotlin to 2.2.0
+- Updated KSP to 2.2.0-2.0.1
+- Updated kotlin-inject 0.8.0
+- Flattened component/subcomponent output instead of nesting - [#138](https://github.com/r0adkll/kimchi/pull/138)
+- Hint generation all shares the same common package - [#138](https://github.com/r0adkll/kimchi/pull/138)
+
 ## [0.5.1] - 2025-01-05
 
 ### Fixed

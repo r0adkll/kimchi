@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package com.r0adkll.kimchi.util.kotlinpoet
 
+import com.google.devtools.ksp.symbol.KSType
 import com.r0adkll.kimchi.annotations.AnnotatedElement
 import com.r0adkll.kimchi.annotations.BindingAnnotation
 import com.r0adkll.kimchi.annotations.ContributesMultibindingAnnotation
@@ -10,8 +11,10 @@ import com.r0adkll.kimchi.util.buildProperty
 import com.r0adkll.kimchi.util.ksp.MapKeyValue
 import com.r0adkll.kimchi.util.ksp.findBindingType
 import com.r0adkll.kimchi.util.ksp.pairTypeOf
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
@@ -25,6 +28,7 @@ import me.tatarka.inject.annotations.Provides
 
 fun <A : BindingAnnotation> TypeSpec.Builder.addBinding(
   annotatedElement: AnnotatedElement<A>,
+  generateProvisionEnabled: Boolean,
 ): TypeSpec.Builder {
   val isMultibinding = annotatedElement.annotation is ContributesMultibindingAnnotation
   val mapKey = if (isMultibinding) {
@@ -51,6 +55,7 @@ fun <A : BindingAnnotation> TypeSpec.Builder.addBinding(
       boundClass = annotatedElement,
       boundType = boundType,
       additionalAnnotations = listIf(isMultibinding, IntoSet::class),
+      generateProvision = !isMultibinding && generateProvisionEnabled,
     )
   } else {
     addProvidesFunction(
@@ -67,7 +72,45 @@ private fun <A : BindingAnnotation> TypeSpec.Builder.addBindingReceiverProperty(
   boundClass: AnnotatedElement<A>,
   boundType: ClassName,
   additionalAnnotations: List<KClass<*>> = emptyList(),
+  generateProvision: Boolean = false,
 ) {
+  if (generateProvision) {
+    val name = boundClass.qualifier()?.let { qualifier ->
+      buildString {
+        append(qualifier.shortName.asString().replaceFirstChar { it.lowercase() })
+        qualifier.arguments.forEach { argument ->
+          val argumentStr = when (val aval = argument.value) {
+            is KSType -> aval.declaration.simpleName.asString()
+            else -> aval.toString()
+          }
+          append(argumentStr)
+        }
+        append(boundType.simpleName)
+      }
+    } ?: boundType.simpleName.replaceFirstChar { it.lowercase() }
+
+    // If we are binding an implementation lets go ahead and create a provision property
+    // for its base type so we expose it to any potential subcomponents
+    addProperty(
+      PropertySpec.buildProperty(
+        name = name,
+        type = boundType,
+      ) {
+        addModifiers(KModifier.ABSTRACT)
+
+        // Add any qualifier that the bound class has
+        boundClass.qualifier()?.let { qualifier ->
+          addAnnotation(
+            qualifier.toAnnotationSpec().toBuilder()
+              .useSiteTarget(AnnotationSpec.UseSiteTarget.GET)
+              .build(),
+          )
+        }
+      },
+    )
+  }
+
+  // Bind the implementation to the receiver
   addProperty(
     PropertySpec.buildProperty(
       name = "bind${boundType.simpleName}",

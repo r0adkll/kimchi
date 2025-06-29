@@ -41,6 +41,12 @@ class MenuRepositoryImpl(/*…*/) : MenuRepository {
 }
 ```
 
+> [!NOTE]
+> As of `kotlin-inject` `0.8.0` it will throw errors trying to instantiate implementations that are not explicitly exposed from a parent via a provision property.
+> With Kimchi this is fixed automatically by the setting:
+> `com.r0adkll.kimchi.generateContributedBindingProvisions`
+> which will automatically generate non-existing provision methods to expose all bindings to sub-graphs.
+
 ### Multi-bindings
 ```kotlin
 interface AppInitializer // { … }
@@ -220,20 +226,20 @@ Checkout the [:circuit](circuit/README.md) subproject for an example of this.
 [![Maven Central](https://img.shields.io/maven-central/v/com.r0adkll.kimchi/kimchi-compiler.svg)](https://search.maven.org/search?q=g:com.r0adkll.kimchi)
 [![Sonatype Snapshot](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.r0adkll.kimchi/kimchi-compiler.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/r0adkll/kimchi/)
 
-**kotlin-inject**   
+**kotlin-inject**
 [![Maven Central](https://img.shields.io/maven-central/v/me.tatarka.inject/kotlin-inject-runtime.svg)](https://search.maven.org/search?q=g:me.tatarka.inject)
 
 **`build.gradle.kts`**
 
 ```kotlin
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "2.0.10"
-  id("com.google.devtools.ksp") version "2.0.10-1.0.24"
+  id("org.jetbrains.kotlin.jvm") version "2.2.0"
+  id("com.google.devtools.ksp") version "2.2.0-2.0.2"
 }
 
 dependencies {
-  implementation("me.tatarka.inject:kotlin-inject-runtime:0.7.1")
-  ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.1")
+  implementation("me.tatarka.inject:kotlin-inject-runtime:0.8.0")
+  ksp("me.tatarka.inject:kotlin-inject-compiler-ksp:0.8.0")
 
   implementation("com.r0adkll.kimchi:kimchi-annotations:<latest_version>")
   ksp("com.r0adkll.kimchi:kimchi-compiler:<latest_version>")
@@ -250,8 +256,8 @@ dependencies {
 
 ```kotlin
 plugins {
-  id("org.jetbrains.kotlin.multiplatform") version "2.0.10"
-  id("com.google.devtools.ksp") version "2.0.10-1.0.24"
+  id("org.jetbrains.kotlin.multiplatform") version "2.2.0"
+  id("com.google.devtools.ksp") version "2.2.0-2.0.2"
 }
 
 kotlin {
@@ -271,7 +277,7 @@ kotlin {
 
   sourceSets {
     commonMain.dependencies {
-      implementation("me.tatarka.inject:kotlin-inject-runtime:0.7.1")
+      implementation("me.tatarka.inject:kotlin-inject-runtime:0.8.0")
       implementation("com.r0adkll.kimchi:kimchi-annotations:<latest_version>")
 
       // Circuit integration: https://github.com/slackhq/circuit
@@ -280,11 +286,11 @@ kotlin {
   }
 }
 dependencies {
-  add("kspJvm", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.1")
-  add("kspAndroid", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.1")
-  add("kspIosX64", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.1")
-  add("kspIosArm64", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.1")
-  add("kspIosSimulatorArm64", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.7.1")
+  add("kspJvm", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.8.0")
+  add("kspAndroid", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.8.0")
+  add("kspIosX64", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.8.0")
+  add("kspIosArm64", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.8.0")
+  add("kspIosSimulatorArm64", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.8.0")
 
   add("kspJvm", "com.r0adkll.kimchi:kimchi-compiler:<latest_version>")
   add("kspAndroid", "com.r0adkll.kimchi:kimchi-compiler:<latest_version>")
