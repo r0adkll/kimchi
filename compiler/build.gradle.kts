@@ -9,6 +9,7 @@ plugins {
 
 kotlin {
   compilerOptions {
+    jvmToolchain(17)
     freeCompilerArgs.add("-Xopt-in=org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi")
   }
 }

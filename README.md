@@ -41,6 +41,12 @@ class MenuRepositoryImpl(/*…*/) : MenuRepository {
 }
 ```
 
+> [!NOTE]
+> As of `kotlin-inject` `0.8.0` it will throw errors trying to instantiate implementations that are not explicitly exposed from a parent via a provision property.
+> With Kimchi this is fixed automatically by the setting:
+> `com.r0adkll.kimchi.generateContributedBindingProvisions`
+> which will automatically generate non-existing provision methods to expose all bindings to sub-graphs.
+
 ### Multi-bindings
 ```kotlin
 interface AppInitializer // { … }
@@ -220,7 +226,7 @@ Checkout the [:circuit](circuit/README.md) subproject for an example of this.
 [![Maven Central](https://img.shields.io/maven-central/v/com.r0adkll.kimchi/kimchi-compiler.svg)](https://search.maven.org/search?q=g:com.r0adkll.kimchi)
 [![Sonatype Snapshot](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.r0adkll.kimchi/kimchi-compiler.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/r0adkll/kimchi/)
 
-**kotlin-inject**   
+**kotlin-inject**
 [![Maven Central](https://img.shields.io/maven-central/v/me.tatarka.inject/kotlin-inject-runtime.svg)](https://search.maven.org/search?q=g:me.tatarka.inject)
 
 **`build.gradle.kts`**

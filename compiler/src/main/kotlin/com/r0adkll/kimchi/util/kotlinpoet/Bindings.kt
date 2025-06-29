@@ -28,6 +28,7 @@ import me.tatarka.inject.annotations.Provides
 
 fun <A : BindingAnnotation> TypeSpec.Builder.addBinding(
   annotatedElement: AnnotatedElement<A>,
+  generateProvisionEnabled: Boolean,
 ): TypeSpec.Builder {
   val isMultibinding = annotatedElement.annotation is ContributesMultibindingAnnotation
   val mapKey = if (isMultibinding) {
@@ -54,7 +55,7 @@ fun <A : BindingAnnotation> TypeSpec.Builder.addBinding(
       boundClass = annotatedElement,
       boundType = boundType,
       additionalAnnotations = listIf(isMultibinding, IntoSet::class),
-      generateProvision = !isMultibinding,
+      generateProvision = !isMultibinding && generateProvisionEnabled,
     )
   } else {
     addProvidesFunction(

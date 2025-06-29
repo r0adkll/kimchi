@@ -38,6 +38,10 @@ kotlin {
       compileOnly(libs.kotlininject.runtime)
     }
   }
+
+  compilerOptions {
+    jvmToolchain(17)
+  }
 }
 
 android { namespace = "com.r0adkll.kimchi.circuit.annotations" }

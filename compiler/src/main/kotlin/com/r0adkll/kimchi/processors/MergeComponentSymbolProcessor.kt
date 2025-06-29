@@ -29,6 +29,7 @@ import com.r0adkll.kimchi.util.ksp.ConstructorParameter
 import com.r0adkll.kimchi.util.ksp.addParameters
 import com.r0adkll.kimchi.util.ksp.component.MergeComponentDeclaration
 import com.r0adkll.kimchi.util.ksp.component.SubcomponentDeclaration
+import com.r0adkll.kimchi.util.ksp.findActualType
 import com.r0adkll.kimchi.util.ksp.findBindingType
 import com.r0adkll.kimchi.util.ksp.hasAnnotation
 import com.r0adkll.kimchi.util.ksp.hasCompanionObject
@@ -64,6 +65,9 @@ internal class MergeComponentSymbolProcessor(
 
   private val isGenerateCompanionExtensionsEnabled: Boolean
     get() = env.options["me.tatarka.inject.generateCompanionExtensions"] == "true"
+
+  private val isContributedBindingProvisionsEnabled: Boolean
+    get() = env.options["com.r0adkll.kimchi.generateContributedBindingProvisions"] != "false"
 
   override fun process(resolver: Resolver): List<KSAnnotated> {
     val classScanner = ClassScanner(resolver, env.logger)
@@ -116,8 +120,12 @@ internal class MergeComponentSymbolProcessor(
     val className = ClassName(packageName, classSimpleName)
 
     return FileSpec.buildFile(packageName, classSimpleName) {
-      // Recursively Generate a component and its contributed subcomponents
-      addType(generateComponent(classScanner, packageName, element))
+      // Recursively Generate a components and its contributed subcomponents
+      generateComponents(classScanner, packageName, element)
+        .reversed()
+        .forEach { component ->
+          addType(component)
+        }
 
       // Create Companion extension method on original element to create this component
       val constructorParameters = getConstructorParameters(element)
@@ -152,15 +160,14 @@ internal class MergeComponentSymbolProcessor(
     }
   }
 
-  private fun FileSpec.Builder.generateComponent(
+  private fun FileSpec.Builder.generateComponents(
     classScanner: ClassScanner,
     packageName: String,
     element: KSClassDeclaration,
     parent: ClassName? = null,
-  ): TypeSpec {
+  ): List<TypeSpec> {
     val classSimpleName = "Merged${element.simpleName.asString()}"
-    val className = parent?.nestedClass(classSimpleName)
-      ?: ClassName(packageName, classSimpleName)
+    val className = ClassName(packageName, classSimpleName)
     val isSubcomponent: Boolean = parent != null
 
     val mergingAnnotation = MergingAnnotation.from(element)
@@ -238,7 +245,8 @@ internal class MergeComponentSymbolProcessor(
     }.flatMap { it.replaces }
 
     // Build the kotlin poet code
-    return TypeSpec.buildClass(classSimpleName) {
+    val components = mutableListOf<TypeSpec>()
+    components += TypeSpec.buildClass(classSimpleName) {
       // Add this original file + contributed modules to the metadata
       // for incremental processing
       element.containingFile
@@ -317,6 +325,21 @@ internal class MergeComponentSymbolProcessor(
           .toList(),
       )
 
+      // Helper function to finding any contributed interface property or
+      // annotated element property that would serve as a provision in this component
+      // for any contributed implementation binding
+      fun findExistingProvisionForBoundType(boundType: ClassName): Boolean {
+        return modules.any {
+          it.element.getAllProperties()
+            .any { property ->
+              property.type.findActualType().toClassName() == boundType
+            }
+        } || element.getAllProperties()
+          .any { property ->
+            property.type.findActualType().toClassName() == boundType
+          }
+      }
+
       // Generate all the contributed bindings
       bindings
         .filterNot { replaced.contains(it.element.toClassName()) }
@@ -328,7 +351,9 @@ internal class MergeComponentSymbolProcessor(
         }
         .forEach { (_, group) ->
           if (group.size == 1) {
-            addBinding(group.first())
+            val binding = group.first()
+            val hasProvision = findExistingProvisionForBoundType(binding.findBindingType())
+            addBinding(binding, isContributedBindingProvisionsEnabled && !hasProvision)
           } else {
             // Check if there are multiple in the group with the same rank
             val rankSet = group
@@ -346,7 +371,8 @@ internal class MergeComponentSymbolProcessor(
               )
             } else {
               val maxRankedBinding = group.maxBy { it.annotation.rank }
-              addBinding(maxRankedBinding)
+              val hasProvision = findExistingProvisionForBoundType(maxRankedBinding.findBindingType())
+              addBinding(maxRankedBinding, isContributedBindingProvisionsEnabled && !hasProvision)
             }
           }
         }
@@ -355,7 +381,7 @@ internal class MergeComponentSymbolProcessor(
       multiBindings
         .filterNot { replaced.contains(it.element.toClassName()) }
         .forEach { multiBinding ->
-          addBinding(multiBinding)
+          addBinding(multiBinding, isContributedBindingProvisionsEnabled)
         }
 
       // Now iterate through all the subcomponents, and add them
@@ -372,14 +398,12 @@ internal class MergeComponentSymbolProcessor(
           // Add provides function that exposes the factory as a dependency
           addFunction(subcomponent.createFactoryProvidesFunction())
 
-          // Generate the Subcomponent
-          addType(
-            generateComponent(
-              classScanner = classScanner,
-              packageName = packageName,
-              element = subcomponent,
-              parent = className,
-            ),
+          // Generate the Subcomponent(s)
+          components += generateComponents(
+            classScanner = classScanner,
+            packageName = packageName,
+            element = subcomponent,
+            parent = className,
           )
         }
 
@@ -389,6 +413,8 @@ internal class MergeComponentSymbolProcessor(
           .build(),
       )
     }
+
+    return components
   }
 
   private fun getConstructorParameters(element: KSClassDeclaration): List<ParameterSpec> {

@@ -47,6 +47,7 @@ kotlin {
       api(compose.material3)
       api(compose.materialIconsExtended)
     }
+
     commonTest.dependencies {
       implementation(libs.kotlin.test)
     }

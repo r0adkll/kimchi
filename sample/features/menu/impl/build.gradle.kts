@@ -40,6 +40,7 @@ kotlin {
   }
 }
 
+addKspDependencyForAllTargets(libs.kotlininject.ksp)
 addKspDependencyForAllTargets(projects.compiler)
 
 android { namespace = "com.r0adkll.kimchi.restaurant.menu.impl" }
