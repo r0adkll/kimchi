@@ -14,7 +14,7 @@ ksp = "2.2.0-2.0.2"
 ksp-autoservce = "1.2.0"
 ktlint = "0.49.1"
 mavenPublish = "0.34.0"
-spotless = "7.1.0"
+spotless = "7.2.0"
 strikt = "0.35.1"
 
 [libraries]
