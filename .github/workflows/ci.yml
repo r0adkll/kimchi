@@ -16,7 +16,7 @@ jobs:
     container:
       image: docker://ghcr.io/danger/danger-kotlin:1.3.1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run Danger
         run: danger-kotlin ci --failOnErrors --no-publish-check
         env:
@@ -26,7 +26,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install JDK
         uses: actions/setup-java@v4
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install JDK
         uses: actions/setup-java@v4
@@ -91,7 +91,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Extract release notes
         id: extract-release-notes
