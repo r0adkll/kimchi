@@ -4,6 +4,7 @@ package com.r0adkll.kimchi.util
 
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 
@@ -28,9 +29,15 @@ public class KimchiException(
           else -> "Unknown: $node"
         }
       }
-        File: ${node.containingFile?.filePath}
+        File: ${node.safeContainingFile()?.filePath}
       """.trimIndent()
     }
     return ""
   }
+}
+
+private fun KSNode.safeContainingFile(): KSFile? = try {
+  containingFile
+} catch (e: Exception) {
+  null
 }

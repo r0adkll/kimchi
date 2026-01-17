@@ -6,8 +6,6 @@ import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSName
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.ksp.toTypeName
 
 /**
  * Return whether or not this [KSClassDeclaration] has a supertype of type [clazz] anywhere
@@ -15,10 +13,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  */
 public fun KSClassDeclaration.implements(className: ClassName): Boolean {
   return getAllSuperTypes().any {
-    when (val typeName = it.toTypeName()) {
-      is ParameterizedTypeName -> typeName.rawType == className
-      else -> typeName == className
-    }
+    it.declaration.qualifiedName?.asString() == className.canonicalName
   }
 }
 

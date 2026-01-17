@@ -4,11 +4,11 @@ package com.r0adkll.kimchi.restaurant
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
 import com.r0adkll.kimchi.restaurant.common.screens.MenuScreen
