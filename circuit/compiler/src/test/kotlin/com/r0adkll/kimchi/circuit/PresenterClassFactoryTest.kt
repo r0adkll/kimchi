@@ -99,4 +99,72 @@ class PresenterClassFactoryTest {
         }
     }
   }
+
+  @Test
+  fun `NonPausablePresenter class generates factory and contributed component`() {
+    compileKimchiWithTestSources(
+      """
+        package kimchi
+
+        import androidx.compose.runtime.Composable
+        import me.tatarka.inject.annotations.Assisted
+        import me.tatarka.inject.annotations.Inject
+        import com.r0adkll.kimchi.circuit.annotations.CircuitInject
+        import com.slack.circuit.runtime.Navigator
+        import com.slack.circuit.foundation.NonPausablePresenter
+        import com.slack.circuit.runtime.CircuitContext
+
+        @CircuitInject(TestScreen::class, TestScope::class)
+        @Inject
+        class TestPresenter(
+          @Assisted private val screen: TestScreen,
+          @Assisted private val navigator: Navigator,
+          @Assisted private val context: CircuitContext,
+        ) : NonPausablePresenter<TestUiState> {
+
+            @Composable
+            override fun present(): TestUiState {
+              return TestUiState()
+            }
+        }
+      """.trimIndent(),
+      workingDir = workingDir,
+    ) {
+      val factory = kotlinClass("kimchi.TestPresenterFactory")
+      expectThat(factory)
+        .hasAnnotation(Inject::class)
+        .implements(Presenter.Factory::class)
+        .primaryConstructor()
+        .isNotNull()
+        .parameter(0)
+        .isTypeOf(Function3::class)
+        .with({ type.arguments }) {
+          withElementAt(0) {
+            get { type!!.classifier } isEqualTo testScreen
+          }
+          withElementAt(1) {
+            get { type!!.classifier } isEqualTo Navigator::class
+          }
+          withElementAt(2) {
+            get { type!!.classifier } isEqualTo CircuitContext::class
+          }
+          withElementAt(3) {
+            get { type!!.classifier } isEqualTo kotlinClass("kimchi.TestPresenter")
+          }
+        }
+
+      val component = kotlinClass("kimchi.TestPresenterFactoryComponent")
+      expectThat(component)
+        .withAnnotation<ContributesTo> {
+          get { scope } isEqualTo testScope
+        }
+        .withFunction("bindTestPresenterFactory") {
+          hasAnnotation(IntoSet::class)
+          hasAnnotation(Provides::class)
+          parameter(1)
+            .isTypeOf(factory)
+          hasReturnType(Presenter.Factory::class)
+        }
+    }
+  }
 }

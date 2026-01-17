@@ -32,8 +32,7 @@ public class KimchiCompilation internal constructor(
     kimchiConfigured = true
 
     kotlinCompilation.apply {
-      kspWithCompilation = true
-      configureKsp(true) {
+      configureKsp {
         symbolProcessorProviders += buildList {
           addAll(
             ServiceLoader.load(
@@ -44,6 +43,7 @@ public class KimchiCompilation internal constructor(
           addAll(extraSymbolProcessorProviders)
         }
       }
+      kspWithCompilation = true
     }
   }
 

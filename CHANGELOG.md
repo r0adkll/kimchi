@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated Kotlin to 2.3.0
+- Updated KSP to 2.3.4
+- Updated kotlin-inject to 0.9.0
+- Updated circuit to 0.32.0
+
 ### Deprecated
 
 ### Removed
