@@ -10,7 +10,7 @@ import com.slack.circuit.backstack.SaveableBackStack
 import com.slack.circuit.foundation.Circuit
 import com.slack.circuit.foundation.CircuitCompositionLocals
 import com.slack.circuit.retained.LocalRetainedStateRegistry
-import com.slack.circuit.retained.continuityRetainedStateRegistry
+import com.slack.circuit.retained.lifecycleRetainedStateRegistry
 import com.slack.circuit.runtime.Navigator
 import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
@@ -30,7 +30,7 @@ fun RestaurantContent(
   @Assisted modifier: Modifier = Modifier,
 ) {
   CompositionLocalProvider(
-    LocalRetainedStateRegistry provides continuityRetainedStateRegistry(),
+    LocalRetainedStateRegistry provides lifecycleRetainedStateRegistry(),
   ) {
     CircuitCompositionLocals(circuit) {
       RestaurantTheme {
